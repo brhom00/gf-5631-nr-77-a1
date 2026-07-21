@@ -1,0 +1,66 @@
+{
+  "languages": [
+    {
+      "code": "ar",
+      "name": "العربية",
+      "dir": "rtl"
+    },
+    {
+      "code": "en",
+      "name": "الإنجليزية",
+      "dir": "ltr"
+    },
+    {
+      "code": "ur",
+      "name": "الأردية",
+      "dir": "rtl"
+    },
+    {
+      "code": "fa",
+      "name": "الفارسية",
+      "dir": "rtl"
+    },
+    {
+      "code": "tr",
+      "name": "التركية",
+      "dir": "ltr"
+    },
+    {
+      "code": "fr",
+      "name": "الفرنسية",
+      "dir": "ltr"
+    },
+    {
+      "code": "he",
+      "name": "العبرية",
+      "dir": "rtl"
+    },
+    {
+      "code": "ha",
+      "name": "الهوسا",
+      "dir": "ltr"
+    }
+  ],
+  "platforms": [
+    {
+      "id": "google",
+      "name": "Google"
+    },
+    {
+      "id": "x",
+      "name": "X"
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok"
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook"
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube"
+    }
+  ]
+}
