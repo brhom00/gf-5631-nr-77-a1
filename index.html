@@ -36,7 +36,7 @@
         <label>التصنيف
           <select id="category"></select>
         </label>
-        <label>المجموعة
+        <label id="groupLabel">المجموعة
           <select id="group"></select>
         </label>
         <label>مستوى توسعة البحث
@@ -50,10 +50,94 @@
       </div>
 
       <p id="scenario" class="scenario"></p>
+      <section class="time-panel" aria-labelledby="timeTitle">
+        <div class="section-head compact-head">
+          <div>
+            <h2 id="timeTitle">مدة البحث <small>اختياري</small></h2>
+            <p class="muted">اختر مدة جاهزة أو فعّل نطاقًا زمنيًا مخصصًا.</p>
+          </div>
+        </div>
+        <div class="grid time-grid">
+          <label>المدة
+            <select id="timeRange">
+              <option value="all">جميع الأوقات</option>
+              <option value="1h">آخر ساعة</option>
+              <option value="3h">آخر 3 ساعات</option>
+              <option value="8h">آخر 8 ساعات</option>
+              <option value="24h">آخر 24 ساعة</option>
+              <option value="3d">آخر 3 أيام</option>
+              <option value="7d">آخر 7 أيام</option>
+            </select>
+          </label>
+          <label class="switch-label"><span>نطاق زمني مخصص</span>
+            <input id="customDateToggle" type="checkbox">
+          </label>
+        </div>
+
+        <div id="customDatePanel" class="custom-date-panel" hidden>
+          <div class="calendar-switch" role="group" aria-label="نوع التقويم">
+            <button type="button" class="calendar-option active" data-calendar="gregorian">ميلادي</button>
+            <button type="button" class="calendar-option" data-calendar="hijri">هجري</button>
+          </div>
+          <div id="gregorianDates" class="grid date-grid">
+            <label>تاريخ البداية
+              <input id="startDate" type="date">
+            </label>
+            <label>تاريخ النهاية
+              <input id="endDate" type="date">
+            </label>
+          </div>
+          <div id="hijriDates" class="grid date-grid" hidden>
+            <fieldset class="hijri-fieldset">
+              <legend>تاريخ البداية الهجري</legend>
+              <div class="hijri-selects">
+                <select id="hStartDay" aria-label="يوم البداية"></select>
+                <select id="hStartMonth" aria-label="شهر البداية"></select>
+                <select id="hStartYear" aria-label="سنة البداية"></select>
+              </div>
+              <small id="hStartConverted" class="field-help"></small>
+            </fieldset>
+            <fieldset class="hijri-fieldset">
+              <legend>تاريخ النهاية الهجري</legend>
+              <div class="hijri-selects">
+                <select id="hEndDay" aria-label="يوم النهاية"></select>
+                <select id="hEndMonth" aria-label="شهر النهاية"></select>
+                <select id="hEndYear" aria-label="سنة النهاية"></select>
+              </div>
+              <small id="hEndConverted" class="field-help"></small>
+            </fieldset>
+          </div>
+          <div class="date-shortcuts">
+            <button id="todayShortcut" type="button" class="secondary">اليوم</button>
+            <button id="yesterdayShortcut" type="button" class="secondary">أمس</button>
+          </div>
+          <p id="dateStatus" class="translation-status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="advanced-options">
+        <label class="check-row"><input id="exactMatch" type="checkbox"> مطابقة العبارات بالكامل</label>
+        <label id="retweetOption" class="check-row"><input id="includeRetweets" type="checkbox" checked> تضمين إعادة النشر في X</label>
+      </section>
+
 
       <label class="wide">كلمة رئيسية اختيارية
         <input id="primary" type="text" placeholder="مثال: جدة، باكستان، اسم جهة...">
       </label>
+
+      <section id="customWordsPanel" class="custom-words-panel" hidden>
+        <label class="wide"><span>الكلمات الأصلية <b class="required">*</b></span>
+          <textarea id="customSource" rows="5" placeholder="اكتب كل كلمة أو عبارة في سطر مستقل"></textarea>
+        </label>
+        <div class="translation-actions">
+          <button id="translateWords" class="translate-button" type="button">ترجمة</button>
+          <button id="openGoogleTranslate" class="secondary" type="button">فتح Google Translate</button>
+          <span id="translationStatus" class="translation-status" aria-live="polite"></span>
+        </div>
+        <label class="wide"><span id="translatedLabelText">الترجمة</span>
+          <textarea id="translatedWords" rows="5" placeholder="ستظهر الترجمة هنا ويمكنك تعديلها قبل البحث"></textarea>
+        </label>
+      </section>
 
       <label id="customLabel" class="wide"><span id="customLabelText">إضافة كلمات مخصصة</span>
         <textarea id="custom" rows="3" placeholder="افصل الكلمات بفاصلة أو سطر جديد"></textarea>
@@ -70,6 +154,14 @@
         <div id="wordPreview" class="chips" aria-live="polite"></div>
       </section>
 
+
+      <section class="search-summary" aria-labelledby="summaryTitle">
+        <div class="section-head">
+          <h2 id="summaryTitle">ملخص البحث</h2>
+          <strong id="wordCount">0 كلمة</strong>
+        </div>
+        <div id="summaryGrid" class="summary-grid"></div>
+      </section>
       <div class="actions">
         <button id="searchNow" class="primary">ابحث الآن</button>
         <button id="build" class="secondary">تحديث الاستعلام</button>

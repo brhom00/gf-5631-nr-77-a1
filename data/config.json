@@ -43,24 +43,28 @@
   ],
   "platforms": [
     {
-      "id": "google",
-      "name": "Google"
-    },
-    {
       "id": "x",
-      "name": "X"
+      "name": "X (بحث داخل X)"
     },
     {
-      "id": "tiktok",
-      "name": "TikTok"
-    },
-    {
-      "id": "facebook",
-      "name": "Facebook"
+      "id": "google",
+      "name": "Google (بحث ويب)"
     },
     {
       "id": "youtube",
-      "name": "YouTube"
+      "name": "YouTube (بحث داخل YouTube)"
+    },
+    {
+      "id": "tiktok",
+      "name": "TikTok (عبر Google)"
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram (عبر Google)"
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook (عبر Google)"
     }
   ]
 }
