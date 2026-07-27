@@ -42,7 +42,7 @@ function bind(){
     btn.classList.add("active"); state.type = btn.dataset.type; state.excluded.clear();
     fillCategories(); updateCustomField(); refreshAll();
   }));
-  $("language").addEventListener("change", () => { state.excluded.clear(); updateTranslationLabel(); refreshAll(); });
+  $("language").addEventListener("change", () => { state.excluded.clear(); if(isCustomMode()){ $("translatedWords").value=""; setTranslationStatus("تغيّرت لغة البحث؛ اضغط ترجمة من جديد.","warning"); } updateTranslationLabel(); refreshAll(); });
   $("platform").addEventListener("change", refreshAll);
   $("category").addEventListener("change", () => { state.excluded.clear(); fillGroups(); updateCustomField(); refreshAll(); });
   $("group").addEventListener("change", () => { state.excluded.clear(); refreshAll(); });
@@ -75,7 +75,7 @@ function bind(){
 
 
 function currentCollection(){ return state.type === "tags" ? state.bank.tagCategories : state.bank.categories; }
-function isCustomMode(){ return state.type === "keywords" && $("category")?.value === CUSTOM_CATEGORY; }
+function isCustomMode(){ return (state.type === "keywords" || state.type === "tags") && $("category")?.value === CUSTOM_CATEGORY; }
 
 function fillLanguages(){ $("language").innerHTML = state.config.languages.map(x => `<option value="${x.code}">${escapeHtml(x.name)}</option>`).join(""); }
 function fillPlatforms(){ $("platform").innerHTML = state.config.platforms.map(x => `<option value="${x.id}">${escapeHtml(x.name)}</option>`).join(""); }
@@ -89,6 +89,7 @@ function fillCategories(){
   const items = currentCollection() || [];
   let html = items.map((x,i) => `<option value="${i}">${escapeHtml(x.title)}</option>`).join("");
   if(state.type === "keywords") html += `<option value="${CUSTOM_CATEGORY}">كلمات مخصصة</option>`;
+  if(state.type === "tags") html += `<option value="${CUSTOM_CATEGORY}">وسوم مخصصة</option>`;
   $("category").innerHTML = html;
   fillGroups();
 }
@@ -105,7 +106,7 @@ function updateCustomField(){
   $("groupLabel").hidden = handles || customMode;
   $("customWordsPanel").hidden = !customMode;
   $("customLabel").hidden = customMode;
-  $("customLabelText").textContent = handles ? "إضافة معرفات مخصصة" : "إضافة كلمات مخصصة";
+  $("customLabelText").textContent = handles ? "إضافة معرفات مخصصة" : state.type === "tags" ? "إضافة وسوم مخصصة" : "إضافة كلمات مخصصة";
   $("custom").placeholder = handles ? "مثال: @username أو username — افصل المعرفات بفاصلة أو سطر جديد" : "افصل الكلمات بفاصلة أو سطر جديد";
   $("primary").closest("label").hidden = handles;
   $("scope").closest("label").hidden = handles || customMode;
@@ -120,7 +121,7 @@ function updateTranslationLabel(){
 
 function renderScenario(){
   if(state.type === "handles") return void ($("scenario").textContent = "أدخل المعرفات المخصصة، وسيتم تجهيزها تلقائيًا بالصيغة المناسبة للمنصة.");
-  if(isCustomMode()) return void ($("scenario").textContent = "اكتب كل كلمة أو عبارة في سطر مستقل، ثم ترجمها إلى لغة البحث المختارة وراجعها قبل التنفيذ.");
+  if(isCustomMode()) return void ($("scenario").textContent = state.type === "tags" ? "اكتب كل وسم في سطر مستقل من دون #؛ ستُترجم ثم تُجهز للبحث." : "اكتب كل كلمة أو عبارة في سطر مستقل، ثم ترجمها إلى لغة البحث المختارة وراجعها قبل التنفيذ.");
   const category = currentCollection()[Number($("category").value)];
   const group = category?.groups?.[Number($("group").value)];
   $("scenario").textContent = group?.scenario || category?.desc || "";
@@ -190,7 +191,8 @@ function refreshQuery(){
 }
 
 function searchNow(){
-  if(isCustomMode() && !splitLines($("customSource").value).length){ markCustomInvalid(); alert("اكتب كلمة أو عبارة واحدة على الأقل."); return; }
+  if(isCustomMode() && !splitLines($("customSource").value).length){ markCustomInvalid(); alert(state.type==="tags"?"اكتب وسمًا واحدًا على الأقل.":"اكتب كلمة أو عبارة واحدة على الأقل."); return; }
+  if(isCustomMode()){ const source=splitLines($("customSource").value), target=$("language").value, translated=splitLines($("translatedWords").value); if(needsTranslation(source,target) && !translated.length){ setTranslationStatus("اضغط ترجمة أولًا، ثم راجع النتيجة.","error"); $("translateWords").focus(); return; } }
   if($("customDateToggle").checked && !validateDateRange()){ alert("راجع تاريخ البداية والنهاية قبل البحث."); return; }
   if(!refreshQuery()){ alert(state.type==="handles"?"أدخل معرفًا واحدًا على الأقل.":"لا توجد كلمات محددة للبحث."); return; }
   saveSettings(); saveHistory(state.query); window.open(makeSearchUrl($("platform").value,state.query),"_blank","noopener");
@@ -212,49 +214,84 @@ async function translateCustomWords(){
   if(!sourceWords.length){ markCustomInvalid(); setTranslationStatus("اكتب الكلمات أولًا.","error"); return; }
   clearCustomValidation();
   const target=$("language").value;
-  state.translating=true; $("translateWords").disabled=true; setTranslationStatus("جاري الترجمة...");
+  state.translating=true; $("translateWords").disabled=true;
+  setTranslationStatus(`جاري تجهيز الترجمة: 0 من ${sourceWords.length}`,"loading");
   try{
-    const results=[];
-    for(const term of sourceWords){
-      const local=findBankTranslation(term,target);
-      results.push(local || await translateExternal(term,target));
+    const results=[]; let externalCount=0;
+    for(let i=0;i<sourceWords.length;i++){
+      const term=sourceWords[i];
+      let translated=findBankTranslation(term,target);
+      if(!translated && termAlreadyTarget(term,target)) translated=term;
+      if(!translated){ translated=await translateExternal(term,target); externalCount++; }
+      if(!translated) throw new Error(`لم تُترجم العبارة رقم ${i+1}`);
+      results.push(translated);
+      setTranslationStatus(`جاري تجهيز الترجمة: ${i+1} من ${sourceWords.length}`,"loading");
     }
     $("translatedWords").value=results.join("\n");
-    setTranslationStatus("تمت الترجمة. راجع النتائج قبل البحث.","success"); state.excluded.clear(); refreshAll();
+    setTranslationStatus(`تمت ترجمة ${results.length} عنصر${externalCount?` (${externalCount} عبر الخدمة الخارجية)`:" من البنك الداخلي"}.`,"success");
+    state.excluded.clear(); refreshAll();
   }catch(error){
-    setTranslationStatus("تعذرت الترجمة المباشرة. استخدم زر Google Translate ثم انسخ النتيجة.","error");
+    console.error(error);
+    setTranslationStatus("تعذرت الترجمة المباشرة. جرّب مرة أخرى أو افتح Google Translate كحل احتياطي.","error");
   }finally{ state.translating=false; $("translateWords").disabled=false; }
 }
 
 function findBankTranslation(term,target){
   const normalized=normalize(term);
-  for(const category of state.bank.categories||[]){
-    for(const group of category.groups||[]){
-      for(const [sourceCode,sourceData] of Object.entries(group.langs||{})){
-        const sourceWords=splitWords(sourceData?.words||"");
-        const index=sourceWords.findIndex(word=>normalize(word)===normalized);
-        if(index<0) continue;
-        const targetWords=splitWords(group.langs?.[target]?.words||"");
-        if(targetWords[index]) return targetWords[index];
-        if(targetWords.length===1) return targetWords[0];
+  for(const collection of [state.bank.categories||[],state.bank.tagCategories||[]]){
+    for(const category of collection){
+      for(const group of category.groups||[]){
+        for(const sourceData of Object.values(group.langs||{})){
+          const sourceWords=splitWords(sourceData?.words||"");
+          const index=sourceWords.findIndex(word=>normalize(word)===normalized);
+          if(index<0) continue;
+          const targetWords=splitWords(group.langs?.[target]?.words||"");
+          if(targetWords[index]) return targetWords[index];
+          if(targetWords.length===1) return targetWords[0];
+        }
       }
     }
   }
   return "";
 }
 
+function detectSourceLanguage(text){
+  if(/[֐-׿]/.test(text)) return "he";
+  if(/[؀-ۿ]/.test(text)){
+    if(/[پچژگکی]/.test(text)) return "fa";
+    if(/[ٹڈڑںھۓے]/.test(text)) return "ur";
+    return "ar";
+  }
+  if(/[çğıöşüÇĞİÖŞÜ]/.test(text)) return "tr";
+  return "en";
+}
+function termAlreadyTarget(text,target){ return detectSourceLanguage(text)===target; }
+function needsTranslation(words,target){ return words.some(word=>!termAlreadyTarget(word,target)); }
+
 async function translateExternal(text,target){
-  if(target==="ar" && /[\u0600-\u06FF]/.test(text)) return text;
-  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),9000);
-  try{
-    const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}`;
-    const response=await fetch(url,{signal:controller.signal});
-    if(!response.ok) throw new Error("translation failed");
-    const data=await response.json();
-    const translated=(data?.[0]||[]).map(part=>part?.[0]||"").join("").trim();
-    if(!translated) throw new Error("empty translation");
-    return translated;
-  }finally{ clearTimeout(timer); }
+  const errors=[];
+  try{return await translateViaGoogle(text,target)}catch(e){errors.push(e)}
+  try{return await translateViaMyMemory(text,target)}catch(e){errors.push(e)}
+  throw errors.at(-1)||new Error("translation failed");
+}
+async function fetchJsonWithTimeout(url,timeout=10000){
+  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),timeout);
+  try{const response=await fetch(url,{signal:controller.signal,headers:{Accept:"application/json"}}); if(!response.ok)throw new Error(`HTTP ${response.status}`); return await response.json()}finally{clearTimeout(timer)}
+}
+async function translateViaGoogle(text,target){
+  const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}`;
+  const data=await fetchJsonWithTimeout(url,8000);
+  const translated=(data?.[0]||[]).map(part=>part?.[0]||"").join("").trim();
+  if(!translated)throw new Error("Google returned empty translation");
+  return translated;
+}
+async function translateViaMyMemory(text,target){
+  const source=detectSourceLanguage(text);
+  const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(source+"|"+target)}`;
+  const data=await fetchJsonWithTimeout(url,10000);
+  const translated=String(data?.responseData?.translatedText||"").trim();
+  if(!translated || /QUERY LENGTH LIMIT EXCEEDED/i.test(translated))throw new Error("MyMemory returned empty translation");
+  return translated;
 }
 
 function openGoogleTranslate(){
