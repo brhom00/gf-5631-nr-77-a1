@@ -1,96 +1,49 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
-  <meta name="description" content="بنك كلمات مفتاحية ووسوم متعدد اللغات يعمل على GitHub Pages">
-  <title>بنك الكلمات المفتاحية والوسوم (رئيسي)</title>
-  <link rel="stylesheet" href="./style.css">
-  <script src="./app.js" defer></script>
-</head>
+<!doctype html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#103f32"><meta name="description" content="منصة الرصد الرقمي — بنك الكلمات المفتاحية والوسوم">
+<title>منصة الرصد الرقمي</title><link rel="stylesheet" href="./style.css"><script src="./app.js" defer></script></head>
 <body>
-<header class="hero"><div class="shell"><h1>بنك الكلمات المفتاحية والوسوم <small>(رئيسي)</small></h1><p>أنشئ بحثك بخطوات واضحة وسريعة.</p><div id="stats" class="stats" aria-live="polite"></div></div></header>
+<div class="digital-bg" aria-hidden="true"><span>#</span><span>@</span><span>رصد</span><span>DATA</span><span>بحث</span><span>OSINT</span></div>
+<header class="topbar"><div class="shell topbar-inner"><div class="brand"><span class="brand-mark">⌁</span><div><h1>منصة الرصد الرقمي</h1><small>بنك الكلمات المفتاحية والوسوم</small></div></div><strong id="topWordCount">0 كلمة</strong></div></header>
+<main class="shell app">
+<section class="workspace">
+  <div class="type-tabs" role="tablist" aria-label="نوع البحث"><button class="tab active" data-type="keywords">كلمات</button><button class="tab" data-type="tags">وسوم</button><button class="tab" data-type="handles">معرفات</button></div>
 
-<main class="shell app-layout">
-  <section class="panel controls" aria-label="إعدادات البحث">
-    <div class="flow-head"><span>إنشاء بحث جديد</span><small>اتبع الخطوات من الأعلى إلى الأسفل</small></div>
+  <section class="compact-section content-section"><div class="section-title"><h2>محتوى البحث</h2><span id="stats"></span></div>
+    <div class="field-row"><label id="languageLabel">اللغة<select id="language"></select></label><label>التصنيف<select id="category"></select></label></div>
+    <div class="field-row"><label id="groupLabel">المجموعة<select id="group"></select></label><label id="scopeLabel">التوسعة<select id="scope"><option value="precise">دقيق</option><option value="expanded" selected>موسع</option><option value="comprehensive">شامل</option></select><small id="scopeHelp"></small></label></div>
+    <p id="scenario" class="scenario"></p>
 
-    <section class="step-card" data-step="1">
-      <div class="step-title"><b>1</b><div><h2>اختر نوع البحث</h2><p>كلمات مفتاحية أو وسوم أو معرفات حسابات.</p></div></div>
-      <div class="type-tabs" role="tablist" aria-label="نوع البحث">
-        <button class="tab active" data-type="keywords">كلمات مفتاحية</button>
-        <button class="tab" data-type="tags">وسوم</button>
-        <button class="tab" data-type="handles">معرفات</button>
-      </div>
+    <section id="customWordsPanel" class="custom-box" hidden><label><span>الكلمات الأصلية <b>*</b></span><textarea id="customSource" rows="4" placeholder="كل كلمة أو عبارة في سطر"></textarea></label>
+      <div class="translate-row"><button id="translateWords" type="button">ترجمة</button><span id="translationStatus" aria-live="polite"></span><button id="openGoogleTranslate" class="text-button" type="button">Google Translate</button></div>
+      <label><span id="translatedLabelText">الترجمة</span><textarea id="translatedWords" rows="4" placeholder="تظهر الترجمة هنا"></textarea></label>
     </section>
-
-    <section class="step-card" data-step="2">
-      <div class="step-title"><b>2</b><div><h2>حدد محتوى البحث</h2><p>اختر من البنك أو استخدم كلماتك الخاصة.</p></div></div>
-      <div class="grid">
-        <label>التصنيف<select id="category"></select></label>
-        <label id="groupLabel">المجموعة<select id="group"></select></label>
-        <label>مستوى توسعة البحث<select id="scope"><option value="precise">دقيق — أهم الكلمات فقط</option><option value="expanded" selected>موسع — كلمات ومرادفات أكثر</option><option value="comprehensive">شامل — جميع كلمات المجموعة</option></select><small id="scopeHelp" class="field-help"></small></label>
-      </div>
-      <p id="scenario" class="scenario"></p>
-
-      <section id="customWordsPanel" class="custom-words-panel" hidden>
-        <label class="wide"><span>الكلمات الأصلية <b class="required">*</b></span><textarea id="customSource" rows="5" placeholder="اكتب كل كلمة أو عبارة في سطر مستقل"></textarea></label>
-        <div class="translation-bar">
-          <button id="translateWords" class="translate-button" type="button">ترجمة</button>
-          <div class="translation-feedback"><span id="translationStatus" class="translation-status" aria-live="polite"></span><small>تُستخدم الترجمة الداخلية أولًا ثم خدمة خارجية احتياطية.</small></div>
-          <button id="openGoogleTranslate" class="secondary compact" type="button">فتح Google Translate</button>
-        </div>
-        <label class="wide"><span id="translatedLabelText">الترجمة</span><textarea id="translatedWords" rows="5" placeholder="ستظهر الترجمة هنا ويمكنك تعديلها قبل البحث"></textarea></label>
-      </section>
-
-      <label id="customLabel" class="wide"><span id="customLabelText">إضافة كلمات مخصصة</span><textarea id="custom" rows="3" placeholder="افصل الكلمات بفاصلة أو سطر جديد"></textarea></label>
-    </section>
-
-    <section class="step-card" data-step="3">
-      <div class="step-title"><b>3</b><div><h2>حدد مكان وزمن البحث</h2><p>اختر اللغة والمنصة والمدة.</p></div></div>
-      <div class="grid">
-        <label>اللغة<select id="language"></select></label>
-        <label>المنصة<select id="platform"></select></label>
-        <label>المدة<select id="timeRange"><option value="all">جميع الأوقات</option><option value="1h">آخر ساعة</option><option value="3h">آخر 3 ساعات</option><option value="8h">آخر 8 ساعات</option><option value="24h">آخر 24 ساعة</option><option value="3d">آخر 3 أيام</option><option value="7d">آخر 7 أيام</option></select></label>
-        <label class="switch-label"><span>نطاق زمني مخصص</span><input id="customDateToggle" type="checkbox"></label>
-      </div>
-      <div id="customDatePanel" class="custom-date-panel" hidden>
-        <div class="calendar-switch" role="group" aria-label="نوع التقويم"><button type="button" class="calendar-option active" data-calendar="gregorian">ميلادي</button><button type="button" class="calendar-option" data-calendar="hijri">هجري</button></div>
-        <div id="gregorianDates" class="grid date-grid"><label>تاريخ البداية<input id="startDate" type="date"></label><label>تاريخ النهاية<input id="endDate" type="date"></label></div>
-        <div id="hijriDates" class="grid date-grid" hidden>
-          <fieldset class="hijri-fieldset"><legend>تاريخ البداية الهجري</legend><div class="hijri-selects"><select id="hStartDay" aria-label="يوم البداية"></select><select id="hStartMonth" aria-label="شهر البداية"></select><select id="hStartYear" aria-label="سنة البداية"></select></div><small id="hStartConverted" class="field-help"></small></fieldset>
-          <fieldset class="hijri-fieldset"><legend>تاريخ النهاية الهجري</legend><div class="hijri-selects"><select id="hEndDay" aria-label="يوم النهاية"></select><select id="hEndMonth" aria-label="شهر النهاية"></select><select id="hEndYear" aria-label="سنة النهاية"></select></div><small id="hEndConverted" class="field-help"></small></fieldset>
-        </div>
-        <div class="date-shortcuts"><button id="todayShortcut" type="button" class="secondary">اليوم</button><button id="yesterdayShortcut" type="button" class="secondary">أمس</button></div><p id="dateStatus" class="translation-status" aria-live="polite"></p>
-      </div>
-      <p id="platformHint" class="platform-hint"></p>
-    </section>
-
-    <details class="advanced-disclosure">
-      <summary>خيارات متقدمة <small>اختيارية</small></summary>
-      <div class="advanced-body">
-        <label class="wide">كلمة رئيسية اختيارية<input id="primary" type="text" placeholder="مثال: جدة، باكستان، اسم جهة..."></label>
-        <div class="advanced-options"><label class="check-row"><input id="exactMatch" type="checkbox"> مطابقة العبارات بالكامل</label><label id="retweetOption" class="check-row"><input id="includeRetweets" type="checkbox" checked> تضمين إعادة النشر في X</label></div>
-      </div>
-    </details>
-
-    <section class="step-card final-step" data-step="4">
-      <div class="step-title"><b>4</b><div><h2>راجع ثم ابحث</h2><p>يمكنك استبعاد أي كلمة بالضغط عليها.</p></div></div>
-      <section class="preview" aria-labelledby="previewTitle"><div class="section-head"><div><h2 id="previewTitle">الكلمات المستخدمة</h2><p id="previewNote" class="muted"></p></div><button id="restoreWords" class="link neutral" type="button">إعادة المستبعد</button></div><div id="wordPreview" class="chips" aria-live="polite"></div></section>
-      <section class="search-summary" aria-labelledby="summaryTitle"><div class="section-head"><h2 id="summaryTitle">ملخص البحث</h2><strong id="wordCount">0 كلمة</strong></div><div id="summaryGrid" class="summary-grid"></div></section>
-      <div class="actions"><button id="searchNow" class="primary">بحث الآن</button><button id="build" class="secondary">تحديث المعاينة</button><button id="clear" class="secondary">مسح</button></div>
-    </section>
+    <label id="customLabel" class="custom-add"><span id="customLabelText">إضافة كلمات مخصصة</span><textarea id="custom" rows="2" placeholder="افصل بفاصلة أو سطر جديد"></textarea></label>
   </section>
 
-  <section class="panel result"><div class="result-head"><div><span class="eyebrow dark">الاستعلام الناتج</span><h2 id="resultTitle">يتحدث تلقائيًا حسب اختياراتك</h2></div><button id="copy" class="copy" disabled>نسخ</button></div><textarea id="query" rows="7" readonly placeholder="سيظهر الاستعلام هنا تلقائيًا"></textarea><div class="result-actions"><a id="openSearch" class="open disabled" href="#" target="_blank" rel="noopener">فتح البحث</a></div></section>
+  <section class="compact-section editor-section"><div class="section-title"><div><h2>الكلمات التي سيُبحث بها</h2><p id="previewNote"></p></div><button id="restoreWords" class="text-button" type="button">إعادة المحذوف</button></div>
+    <div id="wordPreview" class="chips" aria-live="polite"></div>
+    <div class="add-word"><input id="quickAddWord" type="text" placeholder="أضف كلمة جديدة"><button id="quickAddButton" type="button">إضافة</button></div>
+  </section>
 
-  <details class="panel utility-panel reference"><summary><strong>مرجع محتوى المجموعات</strong><small>افتحه فقط عند الحاجة</small></summary><div class="utility-body"><div class="section-head reference-head"><div><h2 id="referenceTitle">محتوى المجموعات</h2><p class="muted">راجع الكلمات باللغة المختارة.</p></div><input id="referenceSearch" type="search" placeholder="ابحث داخل المجموعات أو الكلمات"></div><div id="referenceList" class="reference-list"></div></div></details>
+  <section class="compact-section settings-section"><div class="section-title"><h2>إعدادات البحث</h2><strong id="wordCount">0 كلمة</strong></div>
+    <div class="three-grid"><label>المنصة<select id="platform"></select></label><label>الوقت<select id="timeRange"><option value="all">كل الأوقات</option><option value="1h">آخر ساعة</option><option value="3h">آخر 3 ساعات</option><option value="8h">آخر 8 ساعات</option><option value="24h">آخر 24 ساعة</option><option value="3d">آخر 3 أيام</option><option value="7d">آخر 7 أيام</option></select></label><label class="switch-label">تاريخ مخصص<input id="customDateToggle" type="checkbox"></label></div>
+    <p id="platformHint" class="hint"></p>
+    <div id="customDatePanel" class="date-panel" hidden><div class="calendar-switch"><button type="button" class="calendar-option active" data-calendar="gregorian">ميلادي</button><button type="button" class="calendar-option" data-calendar="hijri">هجري</button></div>
+      <div id="gregorianDates" class="field-row"><label>من<input id="startDate" type="date"></label><label>إلى<input id="endDate" type="date"></label></div>
+      <div id="hijriDates" hidden><fieldset><legend>البداية</legend><div class="hijri-selects"><select id="hStartDay"></select><select id="hStartMonth"></select><select id="hStartYear"></select></div><small id="hStartConverted"></small></fieldset><fieldset><legend>النهاية</legend><div class="hijri-selects"><select id="hEndDay"></select><select id="hEndMonth"></select><select id="hEndYear"></select></div><small id="hEndConverted"></small></fieldset></div>
+      <div class="date-shortcuts"><button id="todayShortcut" type="button">اليوم</button><button id="yesterdayShortcut" type="button">أمس</button></div><p id="dateStatus"></p>
+    </div>
+    <details class="advanced-disclosure"><summary>خيارات متقدمة</summary><div class="advanced-body"><label>كلمة رئيسية<input id="primary" type="text" placeholder="اختياري"></label><label class="check-row"><input id="exactMatch" type="checkbox"> مطابقة العبارات بالكامل</label><label id="retweetOption" class="check-row"><input id="includeRetweets" type="checkbox" checked> تضمين إعادة النشر</label></div></details>
+  </section>
 
-  <details class="panel utility-panel history"><summary><strong>السجل المحلي</strong><small>آخر عمليات البحث</small></summary><div class="utility-body"><div class="section-head"><h2>السجل المحلي</h2><button id="clearHistory" class="link">مسح السجل</button></div><div id="historyList" class="history-list"><p class="empty">لا توجد عمليات بحث محفوظة بعد.</p></div></div></details>
+  <section class="query-drawer"><details><summary>عرض الاستعلام النهائي</summary><textarea id="query" rows="5" readonly></textarea><div class="query-actions"><button id="copy" disabled>نسخ</button><a id="openSearch" class="disabled" href="#" target="_blank" rel="noopener">فتح</a></div><h2 id="resultTitle" hidden></h2></details></section>
+  <div id="summaryGrid" hidden></div>
+</section>
 
-  <section class="notice"><strong>الخصوصية:</strong> لا توجد قاعدة بيانات أو أدوات تتبع. السجل محفوظ داخل متصفحك فقط.</section>
+<details class="utility"><summary>مرجع المجموعات</summary><div class="utility-body"><input id="referenceSearch" type="search" placeholder="بحث داخل المرجع"><h2 id="referenceTitle"></h2><div id="referenceList"></div></div></details>
+<details class="utility"><summary>السجل المحلي</summary><div class="utility-body"><button id="clearHistory" class="text-button">مسح السجل</button><div id="historyList"></div></div></details>
+<button id="build" hidden></button><button id="clear" hidden></button>
 </main>
-<noscript>يجب تفعيل JavaScript لتشغيل الأداة.</noscript>
-</body>
-</html>
+<div class="search-dock"><div><small id="dockSummary">جاهز للبحث</small><strong id="dockCount">0 كلمة</strong></div><button id="searchNow">بحث الآن</button></div>
+<noscript>يجب تفعيل JavaScript.</noscript></body></html>

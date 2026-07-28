@@ -53,6 +53,8 @@ function bind(){
   $("translatedWords").addEventListener("input", refreshAll);
   $("translateWords").addEventListener("click", translateCustomWords);
   $("openGoogleTranslate").addEventListener("click", openGoogleTranslate);
+  $("quickAddButton").addEventListener("click", quickAddWord);
+  $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
   $("build").addEventListener("click", refreshQuery);
   $("searchNow").addEventListener("click", searchNow);
   $("clear").addEventListener("click", clearForm);
@@ -104,6 +106,8 @@ function updateCustomField(){
   const handles = state.type === "handles";
   const customMode = isCustomMode();
   $("groupLabel").hidden = handles || customMode;
+  $("languageLabel").hidden = handles;
+  $("scopeLabel").hidden = handles || customMode;
   $("customWordsPanel").hidden = !customMode;
   $("customLabel").hidden = customMode;
   $("customLabelText").textContent = handles ? "إضافة معرفات مخصصة" : state.type === "tags" ? "إضافة وسوم مخصصة" : "إضافة كلمات مخصصة";
@@ -176,10 +180,25 @@ function renderPlatformHint(){
 
 function renderPreview(){
   const words=baseWords(), active=getWords(), platform=$("platform").value, acceptedCount=platformTerms(platform,active).length;
-  $("previewNote").textContent=words.length?`${active.length} محددة حاليًا، وستستخدم المنصة حتى ${acceptedCount} منها. اضغط على أي كلمة لاستبعادها مؤقتًا.`:"أدخل عنصرًا واحدًا على الأقل.";
+  $("previewNote").textContent=words.length?`${active.length} مستخدمة الآن · المنصة تقبل حتى ${acceptedCount}`:"أدخل عنصرًا واحدًا على الأقل.";
   $("restoreWords").hidden=state.excluded.size===0;
-  $("wordPreview").innerHTML=words.length?words.map(word=>{const excluded=state.excluded.has(word);return `<button type="button" class="chip${excluded?" excluded":""}" data-word="${escapeHtml(word)}" aria-pressed="${excluded}">${escapeHtml(word)}<span>${excluded?"+":"×"}</span></button>`;}).join(""):`<p class="empty">لا توجد عناصر للمعاينة.</p>`;
-  $("wordPreview").querySelectorAll(".chip").forEach(btn=>btn.addEventListener("click",()=>{const word=btn.dataset.word;state.excluded.has(word)?state.excluded.delete(word):state.excluded.add(word);renderPreview();refreshQuery();}));
+  $("wordPreview").innerHTML=words.length?words.map(word=>{const excluded=state.excluded.has(word);return `<span class="chip${excluded?" excluded":""}" data-word="${escapeHtml(word)}"><button type="button" class="chip-label" aria-label="تعديل ${escapeHtml(word)}">${escapeHtml(word)}</button><button type="button" class="chip-remove" aria-label="${excluded?"إعادة":"حذف"} ${escapeHtml(word)}">${excluded?"+":"×"}</button></span>`;}).join(""):`<p class="empty">لا توجد عناصر للمعاينة.</p>`;
+  $("wordPreview").querySelectorAll(".chip-remove").forEach(btn=>btn.addEventListener("click",()=>{const word=btn.parentElement.dataset.word;state.excluded.has(word)?state.excluded.delete(word):state.excluded.add(word);renderPreview();refreshQuery();renderSummary();}));
+  $("wordPreview").querySelectorAll(".chip-label").forEach(btn=>btn.addEventListener("click",()=>editWord(btn.parentElement.dataset.word)));
+}
+
+function quickAddWord(){
+  const input=$("quickAddWord"), word=input.value.trim(); if(!word)return;
+  const target=isCustomMode()?$("translatedWords"):$("custom");
+  target.value=[target.value.trim(),word].filter(Boolean).join("\n"); input.value=""; state.excluded.delete(word); refreshAll(); input.focus();
+}
+function editWord(oldWord){
+  const next=prompt("عدّل الكلمة:",oldWord); if(next===null)return; const clean=next.trim(); if(!clean)return;
+  const source=isCustomMode()?$("translatedWords"):$("custom");
+  let values=splitWords(source.value);
+  const idx=values.findIndex(x=>x===oldWord);
+  if(idx>=0) values[idx]=clean; else { state.excluded.add(oldWord); values.push(clean); }
+  source.value=unique(values).join("\n"); refreshAll();
 }
 
 function refreshQuery(){
@@ -422,6 +441,9 @@ function renderSummary(){
   const words=getWords(),time=getTimeSelection();
   const timeNames={all:"جميع الأوقات","1h":"آخر ساعة","3h":"آخر 3 ساعات","8h":"آخر 8 ساعات","24h":"آخر 24 ساعة","3d":"آخر 3 أيام","7d":"آخر 7 أيام",custom:`${time.start||"—"} إلى ${time.end||"—"}`};
   $("wordCount").textContent=`${words.length} كلمة`;
+  $("topWordCount").textContent=`${words.length} كلمة`;
+  $("dockCount").textContent=`${words.length} كلمة`;
+  $("dockSummary").textContent=`${$("platform").selectedOptions[0]?.textContent||"بحث"} · ${$("language").selectedOptions[0]?.textContent||""}`;
   const items=[
     ["المنصة",$("platform").selectedOptions[0]?.textContent||"—"],
     ["اللغة",$("language").selectedOptions[0]?.textContent||"—"],
