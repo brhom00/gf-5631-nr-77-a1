@@ -251,7 +251,7 @@ async function translateCustomWords(){
     state.excluded.clear(); refreshAll();
   }catch(error){
     console.error(error);
-    setTranslationStatus("تعذرت الترجمة المباشرة. جرّب مرة أخرى أو افتح Google Translate كحل احتياطي.","error");
+    setTranslationStatus("تعذرت الترجمة داخل الموقع. افتح Google Translate من الزر الاحتياطي، ثم الصق النتيجة في مربع الترجمة.","error");
   }finally{ state.translating=false; $("translateWords").disabled=false; }
 }
 
@@ -288,29 +288,43 @@ function termAlreadyTarget(text,target){ return detectSourceLanguage(text)===tar
 function needsTranslation(words,target){ return words.some(word=>!termAlreadyTarget(word,target)); }
 
 async function translateExternal(text,target){
-  const errors=[];
-  try{return await translateViaGoogle(text,target)}catch(e){errors.push(e)}
-  try{return await translateViaMyMemory(text,target)}catch(e){errors.push(e)}
-  throw errors.at(-1)||new Error("translation failed");
+  try{
+    return await translateViaGoogleLegacy(text,target);
+  }catch(googleError){
+    console.warn("Google Translate direct request failed",googleError);
+    try{return await translateViaMyMemory(text,target)}catch(memoryError){
+      console.warn("MyMemory fallback failed",memoryError);
+      throw googleError;
+    }
+  }
 }
-async function fetchJsonWithTimeout(url,timeout=10000){
-  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),timeout);
-  try{const response=await fetch(url,{signal:controller.signal,headers:{Accept:"application/json"}}); if(!response.ok)throw new Error(`HTTP ${response.status}`); return await response.json()}finally{clearTimeout(timer)}
-}
-async function translateViaGoogle(text,target){
-  const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}`;
-  const data=await fetchJsonWithTimeout(url,8000);
-  const translated=(data?.[0]||[]).map(part=>part?.[0]||"").join("").trim();
-  if(!translated)throw new Error("Google returned empty translation");
-  return translated;
+async function translateViaGoogleLegacy(text,target){
+  if(termAlreadyTarget(text,target)) return text;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),12000);
+  try{
+    const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}`;
+    const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
+    if(!response.ok) throw new Error(`Google HTTP ${response.status}`);
+    const data=await response.json();
+    const translated=(data?.[0]||[]).map(part=>part?.[0]||"").join("").trim();
+    if(!translated) throw new Error("Google returned empty translation");
+    return translated;
+  }finally{clearTimeout(timer)}
 }
 async function translateViaMyMemory(text,target){
   const source=detectSourceLanguage(text);
-  const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(source+"|"+target)}`;
-  const data=await fetchJsonWithTimeout(url,10000);
-  const translated=String(data?.responseData?.translatedText||"").trim();
-  if(!translated || /QUERY LENGTH LIMIT EXCEEDED/i.test(translated))throw new Error("MyMemory returned empty translation");
-  return translated;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),12000);
+  try{
+    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(source+"|"+target)}`;
+    const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
+    if(!response.ok) throw new Error(`MyMemory HTTP ${response.status}`);
+    const data=await response.json();
+    const translated=String(data?.responseData?.translatedText||"").trim();
+    if(!translated || /QUERY LENGTH LIMIT EXCEEDED/i.test(translated)) throw new Error("MyMemory returned empty translation");
+    return translated;
+  }finally{clearTimeout(timer)}
 }
 
 function openGoogleTranslate(){
