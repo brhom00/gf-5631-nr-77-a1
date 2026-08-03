@@ -232,27 +232,66 @@ async function translateCustomWords(){
   const sourceWords=splitLines($("customSource").value);
   if(!sourceWords.length){ markCustomInvalid(); setTranslationStatus("اكتب الكلمات أولًا.","error"); return; }
   clearCustomValidation();
-  const target=$("language").value;
-  state.translating=true; $("translateWords").disabled=true;
-  setTranslationStatus(`جاري تجهيز الترجمة: 0 من ${sourceWords.length}`,"loading");
+
+  const targetLanguage=$("language").value;
+  if(targetLanguage==="ar"){
+    $("translatedWords").value=sourceWords.join("\n");
+    setTranslationStatus("اللغة العربية لا تحتاج ترجمة.","success");
+    state.excluded.clear(); refreshAll();
+    return;
+  }
+
+  state.translating=true;
+  $("translateWords").disabled=true;
+  $("translateWords").textContent="جاري الترجمة...";
+  setTranslationStatus(`جاري الترجمة: 0 من ${sourceWords.length}`,"loading");
+
+  const target=googleTranslateApiTargetCode(targetLanguage);
+  const translations=[];
+
   try{
-    const results=[]; let externalCount=0;
     for(let i=0;i<sourceWords.length;i++){
       const term=sourceWords[i];
-      let translated=findBankTranslation(term,target);
-      if(!translated && termAlreadyTarget(term,target)) translated=term;
-      if(!translated){ translated=await translateExternal(term,target); externalCount++; }
-      if(!translated) throw new Error(`لم تُترجم العبارة رقم ${i+1}`);
-      results.push(translated);
-      setTranslationStatus(`جاري تجهيز الترجمة: ${i+1} من ${sourceWords.length}`,"loading");
+      let translated=findBankTranslation(term,targetLanguage);
+
+      if(!translated){
+        const url=
+          "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ar&tl="+
+          encodeURIComponent(target)+
+          "&dt=t&q="+
+          encodeURIComponent(term);
+
+        const response=await fetch(url);
+        if(!response.ok) throw new Error("فشل الاتصال بخدمة الترجمة");
+
+        const data=await response.json();
+        translated="";
+        if(data && data[0] && data[0][0] && data[0][0][0]){
+          translated=data[0].map(function(part){ return part[0] || ""; }).join("").trim();
+        }
+      }
+
+      translations.push(translated || term);
+      setTranslationStatus(`جاري الترجمة: ${i+1} من ${sourceWords.length}`,"loading");
     }
-    $("translatedWords").value=results.join("\n");
-    setTranslationStatus(`تمت ترجمة ${results.length} عنصر${externalCount?` (${externalCount} عبر الخدمة الخارجية)`:" من البنك الداخلي"}.`,"success");
-    state.excluded.clear(); refreshAll();
+
+    $("translatedWords").value=translations.join("\n");
+    setTranslationStatus(`تمت ترجمة ${translations.length} عنصر بنجاح.`,"success");
+    state.excluded.clear();
+    refreshAll();
   }catch(error){
-    console.error(error);
-    setTranslationStatus("تعذرت الترجمة داخل الموقع. افتح Google Translate من الزر الاحتياطي، ثم الصق النتيجة في مربع الترجمة.","error");
-  }finally{ state.translating=false; $("translateWords").disabled=false; }
+    console.error("Translation error",error);
+    setTranslationStatus("تعذرت الترجمة التلقائية. جرّب مرة أخرى أو استخدم زر Google Translate.","error");
+  }finally{
+    state.translating=false;
+    $("translateWords").disabled=false;
+    updateTranslationLabel();
+  }
+}
+
+function googleTranslateApiTargetCode(langCode){
+  const map={ar:"ar",ur:"ur",en:"en",ha:"ha",fr:"fr",tr:"tr",he:"iw",fa:"fa"};
+  return map[langCode] || langCode;
 }
 
 function findBankTranslation(term,target){
@@ -286,46 +325,6 @@ function detectSourceLanguage(text){
 }
 function termAlreadyTarget(text,target){ return detectSourceLanguage(text)===target; }
 function needsTranslation(words,target){ return words.some(word=>!termAlreadyTarget(word,target)); }
-
-async function translateExternal(text,target){
-  try{
-    return await translateViaGoogleLegacy(text,target);
-  }catch(googleError){
-    console.warn("Google Translate direct request failed",googleError);
-    try{return await translateViaMyMemory(text,target)}catch(memoryError){
-      console.warn("MyMemory fallback failed",memoryError);
-      throw googleError;
-    }
-  }
-}
-async function translateViaGoogleLegacy(text,target){
-  if(termAlreadyTarget(text,target)) return text;
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),12000);
-  try{
-    const url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}`;
-    const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
-    if(!response.ok) throw new Error(`Google HTTP ${response.status}`);
-    const data=await response.json();
-    const translated=(data?.[0]||[]).map(part=>part?.[0]||"").join("").trim();
-    if(!translated) throw new Error("Google returned empty translation");
-    return translated;
-  }finally{clearTimeout(timer)}
-}
-async function translateViaMyMemory(text,target){
-  const source=detectSourceLanguage(text);
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),12000);
-  try{
-    const url=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(source+"|"+target)}`;
-    const response=await fetch(url,{signal:controller.signal,cache:"no-store"});
-    if(!response.ok) throw new Error(`MyMemory HTTP ${response.status}`);
-    const data=await response.json();
-    const translated=String(data?.responseData?.translatedText||"").trim();
-    if(!translated || /QUERY LENGTH LIMIT EXCEEDED/i.test(translated)) throw new Error("MyMemory returned empty translation");
-    return translated;
-  }finally{clearTimeout(timer)}
-}
 
 function openGoogleTranslate(){
   const text=splitLines($("customSource").value).join("\n");
