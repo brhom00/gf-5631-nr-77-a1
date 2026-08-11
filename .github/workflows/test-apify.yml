@@ -1,0 +1,19 @@
+
+
+name: Test Apify
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test Apify connection
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          curl -L \
+            -H "Authorization: Bearer $APIFY_TOKEN" \
+            "https://api.apify.com/v2/users/me"
