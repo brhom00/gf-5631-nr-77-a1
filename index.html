@@ -14,6 +14,42 @@
     <div class="field-row"><label id="groupLabel">المجموعة<select id="group"></select></label><label id="scopeLabel">التوسعة<select id="scope"><option value="precise">دقيق</option><option value="expanded" selected>موسع</option><option value="comprehensive">شامل</option></select><small id="scopeHelp"></small></label></div>
     <p id="scenario" class="scenario"></p>
 
+    
+
+<section class="compact-section">
+  <div class="section-title">
+    <div>
+      <h2>تحليل تعليقات TikTok</h2>
+      <p>أدخل رابط فيديو TikTok لجلب التعليقات وتحليلها.</p>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <label>رابط فيديو TikTok</label>
+    <input
+      id="tiktokUrl"
+      type="text"
+      placeholder="https://www.tiktok.com/@user/video/..."
+    />
+  </div>
+
+  <div class="field-row">
+    <label>عدد التعليقات</label>
+    <input
+      id="tiktokMaxComments"
+      type="number"
+      value="100"
+      min="1"
+    />
+  </div>
+
+  <button id="tiktokAnalyze" type="button">
+    جلب وتحليل التعليقات
+  </button>
+
+  <div id="tiktokStatus"></div>
+  <div id="tiktokResults"></div>
+</section>
     <section id="customWordsPanel" class="custom-box" hidden><label><span>الكلمات الأصلية <b>*</b></span><textarea id="customSource" rows="4" placeholder="كل كلمة أو عبارة في سطر"></textarea></label>
       <div class="translate-row"><button id="translateWords" type="button">ترجمة</button><span id="translationStatus" aria-live="polite"></span><button id="openGoogleTranslate" class="text-button" type="button">Google Translate</button></div>
       <label><span id="translatedLabelText">الترجمة</span><textarea id="translatedWords" rows="4" placeholder="تظهر الترجمة هنا"></textarea></label>
