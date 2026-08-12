@@ -54,6 +54,7 @@ function bind(){
   $("translateWords").addEventListener("click", translateCustomWords);
   $("openGoogleTranslate").addEventListener("click", openGoogleTranslate);
   $("quickAddButton").addEventListener("click", quickAddWord);
+  $("#tiktokAnalyze")?.addEventListener("click", analyzeTikTokComments);
   $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
   $("build").addEventListener("click", refreshQuery);
   $("searchNow").addEventListener("click", searchNow);
@@ -486,3 +487,67 @@ function loadSettings(){
   }catch{}
 }
 function isoDate(date){ const d=new Date(date); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+
+
+
+
+async function analyzeTikTokComments() {
+  const url = $("#tiktokUrl")?.value.trim();
+  const maxComments = Number($("#tiktokMaxComments")?.value || 100);
+  const status = $("#tiktokStatus");
+  const results = $("#tiktokResults");
+
+  if (!url) {
+    if (status) status.textContent = "أدخل رابط فيديو TikTok أولاً.";
+    return;
+  }
+
+  if (status) status.textContent = "جاري جلب التعليقات...";
+  if (results) results.innerHTML = "";
+
+  try {
+    const response = await fetch("/api/comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        url,
+        maxComments
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.details || data?.error || "تعذر جلب التعليقات");
+    }
+
+    const comments = Array.isArray(data.comments) ? data.comments : [];
+
+    if (status) status.textContent = `تم جلب ${comments.length} تعليق.`;
+
+    if (!comments.length) {
+      if (results) results.innerHTML = "<p>لم يتم العثور على تعليقات.</p>";
+      return;
+    }
+
+    if (results) {
+      results.innerHTML = comments.map(item => {
+        const text = escapeHtml(
+          item.text || item.commentText || item.comment || ""
+        );
+
+        return `
+          <div class="comment">
+            <div>${text}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+  } catch (error) {
+    console.error(error);
+    if (status) status.textContent = "حدث خطأ أثناء جلب التعليقات.";
+  }
+}
