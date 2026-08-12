@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok Comment Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 110px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 22px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #111;
+      color: white;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .summary {
+      margin-top: 25px;
+      padding: 15px;
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+
+    .comment {
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .matched {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>تحليل تعليقات TikTok</h1>
+
+  <label>رابط فيديو TikTok</label>
+  <input id="url" type="text" placeholder="https://www.tiktok.com/@user/video/..." />
+
+  <label>كلمات البحث</label>
+  <textarea id="keywords" placeholder="مثال:
+مكة
+الحرم
+عمرة
+إيران"></textarea>
+
+  <label>الحد الأقصى للتعليقات</label>
+  <input id="maxComments" type="number" value="100" min="1" />
+
+  <button onclick="analyze()">تحليل التعليقات</button>
+
+  <div id="status" class="status"></div>
+  <div id="summary"></div>
+  <div id="results"></div>
+</div>
+
+<script>
+async function analyze() {
+  const url = document.getElementById("url").value.trim();
+  const keywordsText = document.getElementById("keywords").value.trim();
+  const maxComments = Number(document.getElementById("maxComments").value || 100);
+
+  const status = document.getElementById("status");
+  const summary = document.getElementById("summary");
+  const results = document.getElementById("results");
+
+  summary.innerHTML = "";
+  results.innerHTML = "";
+
+  if (!url) {
+    status.textContent = "ضع رابط TikTok أولًا.";
+    return;
+  }
+
+  if (!keywordsText) {
+    status.textContent = "ضع كلمة بحث واحدة على الأقل.";
+    return;
+  }
+
+  const keywords = keywordsText
+    .split(/\n|,/)
+    .map(k => k.trim())
+    .filter(Boolean);
+
+  status.textContent = "جاري جلب التعليقات وتحليلها...";
+
+  try {
+    const response = await fetch("/api/comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        url,
+        maxComments
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      status.textContent = "حدث خطأ أثناء جلب التعليقات.";
+      console.error(data);
+      return;
+    }
+
+    const comments = data.comments || [];
+
+    const counts = {};
+    keywords.forEach(k => counts[k] = 0);
+
+    const matchedComments = [];
+
+    comments.forEach(comment => {
+      const text = String(
+        comment.text ||
+        comment.commentText ||
+        comment.comment ||
+        ""
+      );
+
+      const matchedKeywords = keywords.filter(keyword =>
+        text.toLowerCase().includes(keyword.toLowerCase())
+      );
+
+      matchedKeywords.forEach(k => counts[k]++);
+
+      if (matchedKeywords.length > 0) {
+        matchedComments.push({
+          text,
+          matchedKeywords,
+          likes: comment.diggCount ?? comment.likes ?? "",
+          replies: comment.replyCommentTotal ?? comment.replyCount ?? "",
+          date: comment.createTimeISO ?? comment.createdAt ?? ""
+        });
+      }
+    });
+
+    status.textContent = "اكتمل التحليل.";
+
+    summary.innerHTML = `
+      <div class="summary">
+        <div><strong>إجمالي التعليقات المستلمة:</strong> ${comments.length}</div>
+        <div><strong>التعليقات المطابقة:</strong> ${matchedComments.length}</div>
+        <hr>
+        ${Object.entries(counts)
+          .map(([word, count]) => `<div>${word}: <strong>${count}</strong></div>`)
+          .join("")}
+      </div>
+    `;
+
+    if (matchedComments.length === 0) {
+      results.innerHTML = "<p>لا توجد تعليقات مطابقة للكلمات المحددة.</p>";
+      return;
+    }
+
+    results.innerHTML = matchedComments.map(item => `
+      <div class="comment">
+        <div class="matched">
+          الكلمات المطابقة: ${item.matchedKeywords.join("، ")}
+        </div>
+        <div>${escapeHtml(item.text)}</div>
+        <div style="margin-top:8px;font-size:14px;">
+          الإعجابات: ${item.likes || "-"} |
+          الردود: ${item.replies || "-"} |
+          التاريخ: ${item.date || "-"}
+        </div>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    status.textContent = "تعذر الاتصال بالخادم.";
+  }
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+</script>
+
+</body>
+</html>
