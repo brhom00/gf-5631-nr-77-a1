@@ -54,7 +54,7 @@ function bind(){
   $("translateWords").addEventListener("click", translateCustomWords);
   $("openGoogleTranslate").addEventListener("click", openGoogleTranslate);
   $("quickAddButton").addEventListener("click", quickAddWord);
-  $("#tiktokAnalyze")?.addEventListener("click", analyzeTikTokComments);
+  $("tiktokAnalyze")?.addEventListener("click", analyzeTikTokComments);
   $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
   $("build").addEventListener("click", refreshQuery);
   $("searchNow").addEventListener("click", searchNow);
@@ -492,10 +492,10 @@ function isoDate(date){ const d=new Date(date); return `${d.getFullYear()}-${Str
 
 
 async function analyzeTikTokComments() {
-  const url = $("#tiktokUrl")?.value.trim();
-  const maxComments = Number($("#tiktokMaxComments")?.value || 100);
-  const status = $("#tiktokStatus");
-  const results = $("#tiktokResults");
+  const url = $("tiktokUrl")?.value.trim();
+  const maxComments = Number($("tiktokMaxComments")?.value || 100);
+  const status = $("tiktokStatus");
+  const results = $("tiktokResults");
 
   if (!url) {
     if (status) status.textContent = "أدخل رابط فيديو TikTok أولاً.";
