@@ -524,16 +524,30 @@ async function analyzeTikTokComments() {
     }
 
     const comments = Array.isArray(data.comments) ? data.comments : [];
+    const searchWords = getWords();
 
-    if (status) status.textContent = `تم جلب ${comments.length} تعليق.`;
+const matchedComments = comments.filter(item => {
+  const text = String(
+    item.text ||
+    item.commentText ||
+    item.comment ||
+    ""
+  ).toLowerCase();
 
-    if (!comments.length) {
+  return searchWords.some(word =>
+    text.includes(String(word).toLowerCase())
+  );
+});
+
+if (status) status.textContent = `تم جلب ${comments.length} تعليق، ووجدنا ${matchedComments.length} تعليق مطابق.`;
+
+if (!matchedComments.length) {
       if (results) results.innerHTML = "<p>لم يتم العثور على تعليقات.</p>";
       return;
     }
 
     if (results) {
-      results.innerHTML = comments.map(item => {
+      results.innerHTML = matchedComments.map(item => {
         const text = escapeHtml(
           item.text || item.commentText || item.comment || ""
         );
