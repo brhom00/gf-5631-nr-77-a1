@@ -524,6 +524,7 @@ async function analyzeTikTokComments() {
     }
 
     const comments = Array.isArray(data.comments) ? data.comments : [];
+    window.lastTikTokComments = comments;
     const searchWords = getWords();
 
 const matchedComments = comments.filter(item => {
@@ -565,3 +566,60 @@ if (!matchedComments.length) {
     if (status) status.textContent = "حدث خطأ أثناء جلب التعليقات.";
   }
 }
+
+
+
+$("#tiktokSearchButton")?.addEventListener("click", () => {
+  const input = $("#tiktokSearchWords");
+  const status = $("#tiktokSearchStatus");
+  const results = $("#tiktokResults");
+
+  const comments = window.lastTikTokComments || [];
+
+  if (!comments.length) {
+    if (status) status.textContent = "اجلب التعليقات أولاً.";
+    return;
+  }
+
+  const words = (input?.value || "")
+    .split(/[،,\n]+/)
+    .map(word => word.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!words.length) {
+    if (status) status.textContent = "اكتب كلمة أو أكثر للبحث.";
+    return;
+  }
+
+  const matched = comments.filter(item => {
+    const text = String(
+      item.text || item.commentText || item.comment || ""
+    ).toLowerCase();
+
+    return words.some(word => text.includes(word));
+  });
+
+  if (status) {
+    status.textContent =
+      `تم العثور على ${matched.length} تعليق مطابق من أصل ${comments.length}.`;
+  }
+
+  if (!results) return;
+
+  if (!matched.length) {
+    results.innerHTML = "<p>لم يتم العثور على تعليقات مطابقة.</p>";
+    return;
+  }
+
+  results.innerHTML = matched.map(item => {
+    const text = escapeHtml(
+      item.text || item.commentText || item.comment || ""
+    );
+
+    return `
+      <div class="comment">
+        <div>${text}</div>
+      </div>
+    `;
+  }).join("");
+});
