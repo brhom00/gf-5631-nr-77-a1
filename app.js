@@ -71,6 +71,16 @@ function bind(){
   $("quickAddButton").addEventListener("click", quickAddWord);
   $("tiktokAnalyze")?.addEventListener("click", analyzeTikTokComments);
   $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
+
+
+  $("tiktokLanguage")?.addEventListener("change", translateTikTokWords);
+$("tiktokQuickAddButton")?.addEventListener("click", addTikTokWord);
+$("tiktokQuickAddWord")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    addTikTokWord();
+  }
+});
   $("build").addEventListener("click", refreshQuery);
   $("searchNow").addEventListener("click", searchNow);
   $("clear").addEventListener("click", clearForm);
@@ -638,3 +648,113 @@ $("#tiktokSearchButton")?.addEventListener("click", () => {
     `;
   }).join("");
 });
+
+async function translateTikTokWords() {
+  const language = $("tiktokLanguage")?.value;
+  const textarea = $("tiktokWords");
+  const status = $("tiktokTranslationStatus");
+
+  if (!textarea) return;
+
+  let originalWords = JSON.parse(
+    localStorage.getItem("tiktokOriginalWords") || "[]"
+  );
+
+  // أول مرة فقط: نحفظ الكلمات الموجودة حاليًا كأساس عربي
+  if (!originalWords.length) {
+    originalWords = textarea.value
+      .split(/\n|,/)
+      .map(w => w.trim())
+      .filter(Boolean);
+
+    if (originalWords.length) {
+      localStorage.setItem(
+        "tiktokOriginalWords",
+        JSON.stringify(originalWords)
+      );
+    }
+  }
+
+  if (!originalWords.length) {
+    if (status) status.textContent = "أضف كلمات أولاً";
+    return;
+  }
+
+  // العربية = عرض الكلمات الأصلية
+  if (language === "ar") {
+    textarea.value = originalWords.join("\n");
+
+    if (status) {
+      status.textContent = "تم عرض الكلمات بالعربية";
+    }
+
+    return;
+  }
+
+  if (status) {
+    status.textContent = "جاري ترجمة مجموعة الكلمات...";
+  }
+
+  try {
+    const translated = [];
+
+    for (const word of originalWords) {
+      const res = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=ar|${language}`
+      );
+
+      const data = await res.json();
+
+      translated.push(
+        data?.responseData?.translatedText || word
+      );
+    }
+
+    textarea.value = translated.join("\n");
+
+    if (status) {
+      status.textContent =
+        `تمت ترجمة ${translated.length} كلمة`;
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    if (status) {
+      status.textContent = "حدث خطأ أثناء الترجمة";
+    }
+  }
+}
+
+
+function addTikTokWord() {
+  const input = $("tiktokQuickAddWord");
+  const textarea = $("tiktokWords");
+  const status = $("tiktokTranslationStatus");
+
+  if (!input || !textarea) return;
+
+  const word = input.value.trim();
+  if (!word) return;
+
+  let originalWords = JSON.parse(
+    localStorage.getItem("tiktokOriginalWords") || "[]"
+  );
+
+  if (!originalWords.includes(word)) {
+    originalWords.push(word);
+
+    localStorage.setItem(
+      "tiktokOriginalWords",
+      JSON.stringify(originalWords)
+    );
+  }
+
+  input.value = "";
+
+  if (status) {
+    status.textContent = "تمت إضافة الكلمة وجاري تحديث الترجمة...";
+  }
+
+  translateTikTokWords();
+}
