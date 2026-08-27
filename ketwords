@@ -19,6 +19,7 @@
     <div>
       <h2>تحليل تعليقات TikTok</h2>
       <p>أدخل رابط فيديو TikTok لجلب التعليقات وتحليلها.</p>
+      
     </div>
   </div>
 
@@ -58,6 +59,45 @@
   </button>
 
   <div id="tiktokSearchStatus"></div>
+</div>
+  <div class="tiktok-translation-box">
+
+  <h3>لغة كلمات البحث</h3>
+
+  <label>
+    اختر اللغة:
+    <select id="tiktokLanguage">
+      <option value="ar">العربية</option>
+      <option value="en">الإنجليزية</option>
+      <option value="ur">الأردو</option>
+      <option value="fa">الفارسية</option>
+      <option value="bn">البنغالية</option>
+      <option value="ha">الهوسا</option>
+      <option value="fr">الفرنسية</option>
+      <option value="he">العبرية</option>
+    </select>
+  </label>
+
+  <label>
+    كلمات TikTok:
+    <textarea id="tiktokWords" rows="4"
+      placeholder="اكتب كلمات البحث هنا"></textarea>
+  </label>
+
+  <div class="add-word">
+    <input
+      id="tiktokQuickAddWord"
+      type="text"
+      placeholder="أضف كلمة جديدة"
+    />
+
+    <button id="tiktokQuickAddButton" type="button">
+      إضافة
+    </button>
+  </div>
+
+  <div id="tiktokTranslationStatus"></div>
+
 </div>
 </section>
     <section id="customWordsPanel" class="custom-box" hidden><label><span>الكلمات الأصلية <b>*</b></span><textarea id="customSource" rows="4" placeholder="كل كلمة أو عبارة في سطر"></textarea></label>
