@@ -72,6 +72,14 @@ function bind(){
   $("tiktokAnalyze")?.addEventListener("click", analyzeTikTokComments);
   $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
   $("build").addEventListener("click", refreshQuery);
+   $("tiktokQuickAddButton")?.addEventListener("click", addTikTokWord);
+  
+$("tiktokQuickAddWord")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    addTikTokWord();
+  }
+});
   $("searchNow").addEventListener("click", searchNow);
   $("clear").addEventListener("click", clearForm);
   $("copy").addEventListener("click", copyQuery);
@@ -638,3 +646,25 @@ $("#tiktokSearchButton")?.addEventListener("click", () => {
     `;
   }).join("");
 });
+
+function addTikTokWord() {
+  const input = $("tiktokQuickAddWord");
+  const textarea = $("tiktokWords");
+
+  if (!input || !textarea) return;
+
+  const word = input.value.trim();
+  if (!word) return;
+
+  const words = textarea.value
+    .split(/\n|,/)
+    .map(w => w.trim())
+    .filter(Boolean);
+
+  if (!words.includes(word)) {
+    words.push(word);
+  }
+
+  textarea.value = words.join("\n");
+  input.value = "";
+}
