@@ -593,11 +593,10 @@ if (!matchedComments.length) {
 
 
 
-$("#tiktokSearchButton")?.addEventListener("click", () => {
-  const input = $("#tiktokSearchWords");
-  const status = $("#tiktokSearchStatus");
-  const results = $("#tiktokResults");
-
+$("tiktokSearchButton")?.addEventListener("click", () => {
+  const input = $("tiktokWords");
+  const status = $("tiktokSearchStatus");
+  const results = $("tiktokResults");
   const comments = window.lastTikTokComments || [];
 
   if (!comments.length) {
