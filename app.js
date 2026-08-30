@@ -549,8 +549,10 @@ async function analyzeTikTokComments() {
 
     const comments = Array.isArray(data.comments) ? data.comments : [];
     window.lastTikTokComments = comments;
-    const searchWords = getWords();
-
+const searchWords = ($("tiktokWords")?.value || "")
+  .split(/[،,\n]+/)
+  .map(word => word.trim())
+  .filter(Boolean);
 const matchedComments = comments.filter(item => {
   const text = String(
     item.text ||
