@@ -80,6 +80,7 @@ $("tiktokQuickAddWord")?.addEventListener("keydown", e => {
     addTikTokWord();
   }
 });
+  $("tiktokLanguage")?.addEventListener("change", translateTikTokWords);
   $("searchNow").addEventListener("click", searchNow);
   $("clear").addEventListener("click", clearForm);
   $("copy").addEventListener("click", copyQuery);
@@ -656,15 +657,97 @@ function addTikTokWord() {
   const word = input.value.trim();
   if (!word) return;
 
-  const words = textarea.value
-    .split(/\n|,/)
-    .map(w => w.trim())
-    .filter(Boolean);
+  let originalWords = JSON.parse(
+    localStorage.getItem("tiktokOriginalWords") || "[]"
+  );
 
-  if (!words.includes(word)) {
-    words.push(word);
+  if (!originalWords.includes(word)) {
+    originalWords.push(word);
+
+    localStorage.setItem(
+      "tiktokOriginalWords",
+      JSON.stringify(originalWords)
+    );
   }
 
-  textarea.value = words.join("\n");
   input.value = "";
+
+  translateTikTokWords();
+}
+async function translateTikTokWords() {
+  const textarea = $("tiktokWords");
+  const language = $("tiktokLanguage")?.value;
+
+  if (!textarea || !language) return;
+
+  let originalWords = JSON.parse(
+    localStorage.getItem("tiktokOriginalWords") || "[]"
+  );
+
+  // أول مرة نحفظ الكلمات العربية الأصلية
+  if (!originalWords.length) {
+    originalWords = textarea.value
+      .split(/\n|,/)
+      .map(w => w.trim())
+      .filter(Boolean);
+
+    if (originalWords.length) {
+      localStorage.setItem(
+        "tiktokOriginalWords",
+        JSON.stringify(originalWords)
+      );
+    }
+  }
+
+  if (!originalWords.length) return;
+
+  // إذا رجع للعربية نعرض الكلمات الأصلية
+  if (language === "ar") {
+    textarea.value = originalWords.join("\n");
+    return;
+  }
+
+  const target = googleTranslateApiTargetCode(language);
+  const translations = [];
+
+  try {
+    for (const term of originalWords) {
+
+      // نحاول أولاً من بنك الكلمات
+      let translated = findBankTranslation(term, language);
+
+      // إذا ما لقيناها نستخدم Google Translate
+      if (!translated) {
+        const url =
+          "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ar&tl=" +
+          encodeURIComponent(target) +
+          "&dt=t&q=" +
+          encodeURIComponent(term);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("فشل الاتصال بخدمة الترجمة");
+        }
+
+        const data = await response.json();
+
+        translated = "";
+
+        if (data && data[0]) {
+          translated = data[0]
+            .map(part => part[0] || "")
+            .join("")
+            .trim();
+        }
+      }
+
+      translations.push(translated || term);
+    }
+
+    textarea.value = translations.join("\n");
+
+  } catch (error) {
+    console.error("TikTok translation error:", error);
+  }
 }
