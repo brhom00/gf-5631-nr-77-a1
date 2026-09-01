@@ -89,7 +89,7 @@ if (state.type === "tiktok") {
   $("quickAddWord").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); quickAddWord(); } });
   $("build").addEventListener("click", refreshQuery);
    $("tiktokQuickAddButton")?.addEventListener("click", addTikTokWord);
-  
+  $("tiktokClearWords")?.addEventListener("click", clearTikTokWords);
 $("tiktokQuickAddWord")?.addEventListener("keydown", e => {
   if (e.key === "Enter") {
     e.preventDefault();
@@ -767,4 +767,14 @@ async function translateTikTokWords() {
   } catch (error) {
     console.error("TikTok translation error:", error);
   }
+}
+
+function clearTikTokWords() {
+  localStorage.removeItem("tiktokOriginalWords");
+
+  const textarea = $("tiktokWords");
+  const input = $("tiktokQuickAddWord");
+
+  if (textarea) textarea.value = "";
+  if (input) input.value = "";
 }
