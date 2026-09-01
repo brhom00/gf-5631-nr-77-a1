@@ -590,17 +590,17 @@ if (!matchedComments.length) {
     }
 
     if (results) {
-      results.innerHTML = matchedComments.map(item => {
-        const text = escapeHtml(
-          item.text || item.commentText || item.comment || ""
-        );
+     results.innerHTML = `
+  <ul class="tiktok-results-list">
+    ${matchedComments.map(item => {
+      const text = escapeHtml(
+        item.text || item.commentText || item.comment || ""
+      );
 
-        return `
-          <div class="comment">
-            <div>${text}</div>
-          </div>
-        `;
-      }).join("");
+      return `<li>${text}</li>`;
+    }).join("")}
+  </ul>
+`;
     }
 
   } catch (error) {
