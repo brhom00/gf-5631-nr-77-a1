@@ -86,7 +86,7 @@ if (state.type === "tiktok") {
   fillCategories();
   updateCustomField();
   refreshAll();
-}
+}));
   $("language").addEventListener("change", () => { state.excluded.clear(); if(isCustomMode()){ $("translatedWords").value=""; setTranslationStatus("تغيّرت لغة البحث؛ اضغط ترجمة من جديد.","warning"); } updateTranslationLabel(); refreshAll(); });
   $("platform").addEventListener("change", refreshAll);
   $("category").addEventListener("change", () => { state.excluded.clear(); fillGroups(); updateCustomField(); refreshAll(); });
