@@ -43,6 +43,7 @@ function bind(){
   state.type = btn.dataset.type;
 
   const tiktokPanel = document.getElementById("tiktokPanel");
+    const facebookPanel = document.getElementById("facebookPanel");
   const contentSection = document.querySelector(".content-section");
 const keywordOnlySections = [
   document.getElementById("customWordsPanel"),
@@ -53,16 +54,30 @@ document.querySelector(".query-drawer"),
 ].filter(Boolean);
 
 if (state.type === "tiktok") {
+
   if (contentSection) contentSection.hidden = true;
   if (tiktokPanel) tiktokPanel.hidden = false;
+  if (facebookPanel) facebookPanel.hidden = true;
+
+  keywordOnlySections.forEach(section => {
+    section.hidden = true;
+  });
+
+} else if (state.type === "facebook") {
+
+  if (contentSection) contentSection.hidden = true;
+  if (tiktokPanel) tiktokPanel.hidden = true;
+  if (facebookPanel) facebookPanel.hidden = false;
 
   keywordOnlySections.forEach(section => {
     section.hidden = true;
   });
 
 } else {
+
   if (contentSection) contentSection.hidden = false;
   if (tiktokPanel) tiktokPanel.hidden = true;
+  if (facebookPanel) facebookPanel.hidden = true;
 
   keywordOnlySections.forEach(section => {
     section.hidden = false;
@@ -72,7 +87,6 @@ if (state.type === "tiktok") {
   updateCustomField();
   refreshAll();
 }
-}));
   $("language").addEventListener("change", () => { state.excluded.clear(); if(isCustomMode()){ $("translatedWords").value=""; setTranslationStatus("تغيّرت لغة البحث؛ اضغط ترجمة من جديد.","warning"); } updateTranslationLabel(); refreshAll(); });
   $("platform").addEventListener("change", refreshAll);
   $("category").addEventListener("change", () => { state.excluded.clear(); fillGroups(); updateCustomField(); refreshAll(); });
