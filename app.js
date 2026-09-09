@@ -38,54 +38,59 @@ async function init(){
 
 function bind(){
   document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
   btn.classList.add("active");
+
   state.type = btn.dataset.type;
 
   const tiktokPanel = document.getElementById("tiktokPanel");
-    const facebookPanel = document.getElementById("facebookPanel");
+  const facebookPanel = document.getElementById("facebookPanel");
   const contentSection = document.querySelector(".content-section");
-const keywordOnlySections = [
-  document.getElementById("customWordsPanel"),
-  document.querySelector(".editor-section"),
-  document.querySelector(".settings-section"),
-document.querySelector(".query-drawer"),
-...document.querySelectorAll(".utility")
-].filter(Boolean);
 
-if (state.type === "tiktok") {
+  const keywordOnlySections = [
+    document.getElementById("customWordsPanel"),
+    document.querySelector(".editor-section"),
+    document.querySelector(".settings-section"),
+    document.querySelector(".query-drawer"),
+    ...document.querySelectorAll(".utility")
+  ].filter(Boolean);
 
-  if (contentSection) contentSection.hidden = true;
-  if (tiktokPanel) tiktokPanel.hidden = false;
-  if (facebookPanel) facebookPanel.hidden = true;
+  if (state.type === "tiktok") {
 
-  keywordOnlySections.forEach(section => {
-    section.hidden = true;
-  });
+    if (contentSection) contentSection.hidden = true;
+    if (tiktokPanel) tiktokPanel.hidden = false;
+    if (facebookPanel) facebookPanel.hidden = true;
 
-} else if (state.type === "facebook") {
+    keywordOnlySections.forEach(section => {
+      section.hidden = true;
+    });
 
-  if (contentSection) contentSection.hidden = true;
-  if (tiktokPanel) tiktokPanel.hidden = true;
-  if (facebookPanel) facebookPanel.hidden = false;
+  } else if (state.type === "facebook") {
 
-  keywordOnlySections.forEach(section => {
-    section.hidden = true;
-  });
+    if (contentSection) contentSection.hidden = true;
+    if (tiktokPanel) tiktokPanel.hidden = true;
+    if (facebookPanel) facebookPanel.hidden = false;
 
-} else {
+    keywordOnlySections.forEach(section => {
+      section.hidden = true;
+    });
 
-  if (contentSection) contentSection.hidden = false;
-  if (tiktokPanel) tiktokPanel.hidden = true;
-  if (facebookPanel) facebookPanel.hidden = true;
+  } else {
 
-  keywordOnlySections.forEach(section => {
-    section.hidden = false;
-  });
+    if (contentSection) contentSection.hidden = false;
+    if (tiktokPanel) tiktokPanel.hidden = true;
+    if (facebookPanel) facebookPanel.hidden = true;
 
-  fillCategories();
-  updateCustomField();
-  refreshAll();
+    keywordOnlySections.forEach(section => {
+      section.hidden = false;
+    });
+
+    fillCategories();
+    updateCustomField();
+    refreshAll();
+  }
+
 }));
   $("language").addEventListener("change", () => { state.excluded.clear(); if(isCustomMode()){ $("translatedWords").value=""; setTranslationStatus("تغيّرت لغة البحث؛ اضغط ترجمة من جديد.","warning"); } updateTranslationLabel(); refreshAll(); });
   $("platform").addEventListener("change", refreshAll);
