@@ -85,13 +85,12 @@
   <div id="tiktokResults"></div>
   
 
-</section>
-  <section id="facebookPanel" class="custom-box" hidden>
+<section id="facebookPanel" class="custom-box" hidden dir="rtl">
 
   <h3>Facebook</h3>
 
   <div class="field-row">
-    <label>رابط منشور Facebook</label>
+    <label for="facebookUrl">رابط منشور Facebook</label>
     <input
       id="facebookUrl"
       type="text"
@@ -100,7 +99,7 @@
   </div>
 
   <div class="field-row">
-    <label>عدد التعليقات</label>
+    <label for="facebookMaxComments">عدد التعليقات</label>
     <input
       id="facebookMaxComments"
       type="number"
@@ -110,14 +109,14 @@
   </div>
 
   <button id="facebookAnalyze" type="button">
-    جلب وتحليل التعليقات
+    سحب وتحليل التعليقات
   </button>
 
   <div id="facebookStatus"></div>
-      <div id="facebookPost"></div>
+  <div id="facebookPost"></div>
   <div id="facebookResults"></div>
 
-</section
+</section>
     <section id="customWordsPanel" class="custom-box" hidden><label><span>الكلمات الأصلية <b>*</b></span><textarea id="customSource" rows="4" placeholder="كل كلمة أو عبارة في سطر"></textarea></label>
       <div class="translate-row"><button id="translateWords" type="button">ترجمة</button><span id="translationStatus" aria-live="polite"></span><button id="openGoogleTranslate" class="text-button" type="button">Google Translate</button></div>
       <label><span id="translatedLabelText">الترجمة</span><textarea id="translatedWords" rows="4" placeholder="تظهر الترجمة هنا"></textarea></label>
