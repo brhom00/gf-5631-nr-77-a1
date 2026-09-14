@@ -226,7 +226,101 @@ app.post("/api/comments", async (req, res) => {
   }
 });
 
+async function fetchFacebookComments(inputUrl, maxComments = 100) {
+  const accessToken = process.env.FB_ACCESS_TOKEN;
 
+  if (!accessToken) {
+    throw new Error("FB_ACCESS_TOKEN غير موجود في Render");
+  }
+
+  const limit = Math.min(
+    Math.max(Number(maxComments) || 100, 1),
+    500
+  );
+
+  const encodedUrl = encodeURIComponent(inputUrl);
+
+  const lookupUrl =
+    `https://graph.facebook.com/v23.0/?id=${encodedUrl}` +
+    `&fields=id,message` +
+    `&access_token=${encodeURIComponent(accessToken)}`;
+
+  const lookupResponse = await fetch(lookupUrl);
+  const lookupData = await lookupResponse.json();
+
+  if (!lookupResponse.ok || !lookupData.id) {
+    throw new Error(
+      lookupData?.error?.message ||
+      "تعذر التعرف على منشور Facebook"
+    );
+  }
+
+  return {
+    postId: lookupData.id,
+    postText: lookupData.message || "",
+    limit
+  };
+}
+app.post("/api/facebook-comments", async (req, res) => {
+  try {
+    const { url, maxComments = 100 } = req.body || {};
+
+    if (!url) {
+      return res.status(400).json({
+        error: "أدخل رابط منشور Facebook"
+      });
+    }
+
+    const info = await fetchFacebookComments(
+      url,
+      maxComments
+    );
+
+    const commentsUrl =
+      `https://graph.facebook.com/v23.0/${encodeURIComponent(info.postId)}/comments` +
+      `?limit=${Math.min(info.limit, 100)}` +
+      `&fields=id,message,created_time,like_count` +
+      `&access_token=${encodeURIComponent(process.env.FB_ACCESS_TOKEN)}`;
+
+    const response = await fetch(commentsUrl);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error?.message ||
+        "تعذر جلب تعليقات Facebook"
+      );
+    }
+
+    const comments = Array.isArray(data.data)
+      ? data.data.map(item => ({
+          id: item.id || "",
+          text: item.message || "",
+          likes: item.like_count || 0,
+          create_time: item.created_time || null
+        }))
+      : [];
+
+    return res.status(200).json({
+      count: comments.length,
+      post: {
+        text: info.postText
+      },
+      comments
+    });
+
+  } catch (error) {
+    console.error(
+      "Facebook comments error:",
+      error
+    );
+
+    return res.status(500).json({
+      error: "تعذر جلب تعليقات Facebook",
+      details: error.message
+    });
+  }
+});
 // تشغيل ملفات الموقع
 app.use(express.static(__dirname));
 
