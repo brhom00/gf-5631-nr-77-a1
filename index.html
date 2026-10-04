@@ -1,3 +1,5 @@
+
+
 <!doctype html><html lang="ar" dir="rtl"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#103f32"><meta name="description" content="منصة الرصد الرقمي — بنك الكلمات المفتاحية والوسوم">
@@ -8,146 +10,740 @@
 <main class="shell app">
 <section class="workspace">
 <button class="tab active" data-type="keywords">كلمات</button><button class="tab" data-type="tiktok">TikTok</button><button class="tab" data-type="facebook">Facebook</button><button class="tab" data-type="tags">وسوم</button><button class="tab" data-type="handles">معرفات</button>
-  <section class="compact-section content-section"><div class="section-title"><h2>محتوى البحث</h2><span id="stats"></span></div>
-    <div class="field-row"><label id="languageLabel">اللغة<select id="language"></select></label><label>التصنيف<select id="category"></select></label></div>
-    <div class="field-row"><label id="groupLabel">المجموعة<select id="group"></select></label><label id="scopeLabel">التوسعة<select id="scope"><option value="precise">دقيق</option><option value="expanded" selected>موسع</option><option value="comprehensive">شامل</option></select><small id="scopeHelp"></small></label></div>
-    <p id="scenario" class="scenario"></p>
-  </section>
-   
-    
 
-<section id="tiktokPanel" class="compact-section" hidden>  <div class="section-title">
-    <div>
-      <h2>تحليل تعليقات TikTok</h2>
-      <p>أدخل رابط فيديو TikTok لجلب التعليقات وتحليلها.</p>
-    </div>
-  </div>
+<section class="compact-section content-section">
+<div class="section-title"><h2>محتوى البحث</h2><span id="stats"></span></div>
+
 <div class="field-row">
-  <label for="tiktokLanguage">لغة كلمات البحث</label>
-
-  <select id="tiktokLanguage">
-    <option value="ar">العربية</option>
-    <option value="en">الإنجليزية</option>
-    <option value="ur">الأردو</option>
-    <option value="fa">الفارسية</option>
-    <option value="bn">البنغالية</option>
-    <option value="ha">الهوسا</option>
-    <option value="fr">الفرنسية</option>
-    <option value="he">العبرية</option>
-  </select>
+<label id="languageLabel">اللغة<select id="language"></select></label>
+<label>التصنيف<select id="category"></select></label>
 </div>
-  <div class="field-row">
-  <label for="tiktokWords">كلمات البحث في TikTok</label>
-  <textarea
-    id="tiktokWords"
-    rows="4"
-    placeholder="ستظهر كلمات البحث هنا"
-  ></textarea>
+
+<div class="field-row">
+<label id="groupLabel">المجموعة<select id="group"></select></label>
+
+<label id="scopeLabel">التوسعة
+<select id="scope">
+<option value="precise">دقيق</option>
+<option value="expanded" selected>موسع</option>
+<option value="comprehensive">شامل</option>
+</select>
+<small id="scopeHelp"></small>
+</label>
+</div>
+
+<p id="scenario" class="scenario"></p>
+</section>
+
+
+<section id="tiktokPanel" class="compact-section" hidden>
+
+<div class="section-title">
+<div>
+<h2>تحليل تعليقات TikTok</h2>
+<p>أدخل رابط فيديو TikTok لجلب التعليقات وتحليلها.</p>
+</div>
+</div>
+
+<div class="field-row">
+<label for="tiktokLanguage">لغة كلمات البحث</label>
+
+<select id="tiktokLanguage">
+<option value="ar">العربية</option>
+<option value="en">الإنجليزية</option>
+<option value="ur">الأردو</option>
+<option value="fa">الفارسية</option>
+<option value="bn">البنغالية</option>
+<option value="ha">الهوسا</option>
+<option value="fr">الفرنسية</option>
+<option value="he">العبرية</option>
+</select>
+</div>
+
+<div class="field-row">
+<label for="tiktokWords">كلمات البحث في TikTok</label>
+
+<textarea
+id="tiktokWords"
+rows="4"
+placeholder="ستظهر كلمات البحث هنا"
+></textarea>
 </div>
 
 <div class="add-word">
-  <input
-    id="tiktokQuickAddWord"
-    type="text"
-    placeholder="أضف كلمة جديدة"
-  >
-  <button id="tiktokQuickAddButton" type="button">
-    إضافة
-  </button>
-  <button id="tiktokClearWords" type="button">
-  مسح الكلمات
+
+<input
+id="tiktokQuickAddWord"
+type="text"
+placeholder="أضف كلمة جديدة"
+>
+
+<button id="tiktokQuickAddButton" type="button">
+إضافة
 </button>
+
+<button id="tiktokClearWords" type="button">
+مسح الكلمات
+</button>
+
 </div>
-  <div class="field-row">
-    <label>رابط فيديو TikTok</label>
-    <input
-      id="tiktokUrl"
-      type="text"
-      placeholder="https://www.tiktok.com/@user/video/..."
-    />
-  </div>
 
-  <div class="field-row">
-    <label>عدد التعليقات</label>
-    <input
-      id="tiktokMaxComments"
-      type="number"
-      value="100"
-      min="1"
-    />
-  </div>
+<div class="field-row">
 
-  <button id="tiktokAnalyze" type="button">
-    جلب وتحليل التعليقات
-  </button>
+<label>رابط فيديو TikTok</label>
 
-  <div id="tiktokStatus"></div>
-  <div id="tiktokResults"></div>
-  
+<input
+id="tiktokUrl"
+type="text"
+placeholder="https://www.tiktok.com/@user/video/..."
+/>
+
+</div>
+
+<div class="field-row">
+
+<label>عدد التعليقات</label>
+
+<input
+id="tiktokMaxComments"
+type="number"
+value="100"
+min="1"
+/>
+
+</div>
+
+<button id="tiktokAnalyze" type="button">
+جلب وتحليل التعليقات
+</button>
+
+<div id="tiktokStatus"></div>
+<div id="tiktokResults"></div>
 
 </section>
-  <section id="facebookPanel" class="custom-box" hidden>
 
-  <h3>Facebook</h3>
 
-  <div class="field-row">
-    <label>رابط منشور Facebook</label>
-    <input
-      id="facebookUrl"
-      type="text"
-      placeholder="https://www.facebook.com/..."
-    />
-  </div>
+<section id="facebookPanel" class="compact-section" hidden>
 
-  <div class="field-row">
-    <label>عدد التعليقات</label>
-    <input
-      id="facebookMaxComments"
-      type="number"
-      value="100"
-      min="1"
-    />
-  </div>
+<div class="section-title">
+<div>
+<h2>تحليل تعليقات Facebook</h2>
+<p>أدخل الكلمات، اختر اللغة، ثم ضع رابط المنشور لجلب التعليقات والبحث داخلها.</p>
+</div>
+</div>
 
-  <button id="facebookAnalyze" type="button">
-    جلب وتحليل التعليقات
-  </button>
+<div class="field-row">
 
-  <div id="facebookStatus"></div>
-      <div id="facebookPost"></div>
-  <div id="facebookResults"></div>
+<label for="facebookLanguage">
+لغة كلمات البحث
+</label>
 
-</section
-    <section id="customWordsPanel" class="custom-box" hidden><label><span>الكلمات الأصلية <b>*</b></span><textarea id="customSource" rows="4" placeholder="كل كلمة أو عبارة في سطر"></textarea></label>
-      <div class="translate-row"><button id="translateWords" type="button">ترجمة</button><span id="translationStatus" aria-live="polite"></span><button id="openGoogleTranslate" class="text-button" type="button">Google Translate</button></div>
-      <label><span id="translatedLabelText">الترجمة</span><textarea id="translatedWords" rows="4" placeholder="تظهر الترجمة هنا"></textarea></label>
-    </section>
-    <label id="customLabel" class="custom-add"><span id="customLabelText">إضافة كلمات مخصصة</span><textarea id="custom" rows="2" placeholder="افصل بفاصلة أو سطر جديد"></textarea></label>
-  </section>
+<select id="facebookLanguage">
 
-  <section class="compact-section editor-section"><div class="section-title"><div><h2>الكلمات التي سيُبحث بها</h2><p id="previewNote"></p></div><button id="restoreWords" class="text-button" type="button">إعادة المحذوف</button></div>
-    <div id="wordPreview" class="chips" aria-live="polite"></div>
-    <div class="add-word"><input id="quickAddWord" type="text" placeholder="أضف كلمة جديدة"><button id="quickAddButton" type="button">إضافة</button></div>
-  </section>
+<option value="ar">العربية</option>
+<option value="en">الإنجليزية</option>
+<option value="ur">الأردو</option>
+<option value="fa">الفارسية</option>
+<option value="bn">البنغالية</option>
+<option value="ha">الهوسا</option>
+<option value="fr">الفرنسية</option>
+<option value="he">العبرية</option>
+<option value="tr">التركية</option>
 
-  <section class="compact-section settings-section"><div class="section-title"><h2>إعدادات البحث</h2><strong id="wordCount">0 كلمة</strong></div>
-    <div class="three-grid"><label>المنصة<select id="platform"></select></label><label>الوقت<select id="timeRange"><option value="all">كل الأوقات</option><option value="1h">آخر ساعة</option><option value="3h">آخر 3 ساعات</option><option value="8h">آخر 8 ساعات</option><option value="24h">آخر 24 ساعة</option><option value="3d">آخر 3 أيام</option><option value="7d">آخر 7 أيام</option></select></label><label class="switch-label">تاريخ مخصص<input id="customDateToggle" type="checkbox"></label></div>
-    <p id="platformHint" class="hint"></p>
-    <div id="customDatePanel" class="date-panel" hidden><div class="calendar-switch"><button type="button" class="calendar-option active" data-calendar="gregorian">ميلادي</button><button type="button" class="calendar-option" data-calendar="hijri">هجري</button></div>
-      <div id="gregorianDates" class="field-row"><label>من<input id="startDate" type="date"></label><label>إلى<input id="endDate" type="date"></label></div>
-      <div id="hijriDates" hidden><fieldset><legend>البداية</legend><div class="hijri-selects"><select id="hStartDay"></select><select id="hStartMonth"></select><select id="hStartYear"></select></div><small id="hStartConverted"></small></fieldset><fieldset><legend>النهاية</legend><div class="hijri-selects"><select id="hEndDay"></select><select id="hEndMonth"></select><select id="hEndYear"></select></div><small id="hEndConverted"></small></fieldset></div>
-      <div class="date-shortcuts"><button id="todayShortcut" type="button">اليوم</button><button id="yesterdayShortcut" type="button">أمس</button></div><p id="dateStatus"></p>
-    </div>
-    <details class="advanced-disclosure"><summary>خيارات متقدمة</summary><div class="advanced-body"><label>كلمة رئيسية<input id="primary" type="text" placeholder="اختياري"></label><label class="check-row"><input id="exactMatch" type="checkbox"> مطابقة العبارات بالكامل</label><label id="retweetOption" class="check-row"><input id="includeRetweets" type="checkbox" checked> تضمين إعادة النشر</label></div></details>
-  </section>
+</select>
 
-  <section class="query-drawer"><details><summary>عرض الاستعلام النهائي</summary><textarea id="query" rows="5" readonly></textarea><div class="query-actions"><button id="copy" disabled>نسخ</button><a id="openSearch" class="disabled" href="#" target="_blank" rel="noopener">فتح</a></div><h2 id="resultTitle" hidden></h2></details></section>
-  <div id="summaryGrid" hidden></div>
+</div>
+
+
+<div class="field-row">
+
+<label for="facebookWords">
+كلمات البحث داخل التعليقات
+</label>
+
+<textarea
+id="facebookWords"
+rows="4"
+placeholder="اكتب الكلمات هنا، كل كلمة في سطر"
+></textarea>
+
+</div>
+
+
+<div class="add-word">
+
+<input
+id="facebookQuickAddWord"
+type="text"
+placeholder="أضف كلمة جديدة"
+>
+
+<button
+id="facebookQuickAddButton"
+type="button"
+>
+إضافة
+</button>
+
+<button
+id="facebookClearWords"
+type="button"
+>
+مسح الكلمات
+</button>
+
+</div>
+
+
+<div class="field-row">
+
+<label for="facebookUrl">
+رابط منشور Facebook
+</label>
+
+<input
+id="facebookUrl"
+type="text"
+placeholder="https://www.facebook.com/..."
+>
+
+</div>
+
+
+<div class="field-row">
+
+<label for="facebookMaxComments">
+عدد التعليقات
+</label>
+
+<input
+id="facebookMaxComments"
+type="number"
+value="100"
+min="1"
+>
+
+</div>
+
+
+<button
+id="facebookAnalyze"
+type="button"
+>
+جلب وتحليل التعليقات
+</button>
+
+
+<div id="facebookStatus"></div>
+
+<div id="facebookResults"></div>
+
 </section>
 
-<details class="utility"><summary>مرجع المجموعات</summary><div class="utility-body"><input id="referenceSearch" type="search" placeholder="بحث داخل المرجع"><h2 id="referenceTitle"></h2><div id="referenceList"></div></div></details>
-<details class="utility"><summary>السجل المحلي</summary><div class="utility-body"><button id="clearHistory" class="text-button">مسح السجل</button><div id="historyList"></div></div></details>
-<button id="build" hidden></button><button id="clear" hidden></button>
+
+<section id="customWordsPanel" class="custom-box" hidden>
+
+<label>
+
+<span>
+الكلمات الأصلية <b>*</b>
+</span>
+
+<textarea
+id="customSource"
+rows="4"
+placeholder="كل كلمة أو عبارة في سطر"
+></textarea>
+
+</label>
+
+<div class="translate-row">
+
+<button id="translateWords" type="button">
+ترجمة
+</button>
+
+<span
+id="translationStatus"
+aria-live="polite"
+></span>
+
+<button
+id="openGoogleTranslate"
+class="text-button"
+type="button"
+>
+Google Translate
+</button>
+
+</div>
+
+<label>
+
+<span id="translatedLabelText">
+الترجمة
+</span>
+
+<textarea
+id="translatedWords"
+rows="4"
+placeholder="تظهر الترجمة هنا"
+></textarea>
+
+</label>
+
+</section>
+
+
+<label
+id="customLabel"
+class="custom-add"
+>
+
+<span id="customLabelText">
+إضافة كلمات مخصصة
+</span>
+
+<textarea
+id="custom"
+rows="2"
+placeholder="افصل بفاصلة أو سطر جديد"
+></textarea>
+
+</label>
+
+</section>
+
+
+<section class="compact-section editor-section">
+
+<div class="section-title">
+
+<div>
+
+<h2>
+الكلمات التي سيُبحث بها
+</h2>
+
+<p id="previewNote"></p>
+
+</div>
+
+<button
+id="restoreWords"
+class="text-button"
+type="button"
+>
+إعادة المحذوف
+</button>
+
+</div>
+
+
+<div
+id="wordPreview"
+class="chips"
+aria-live="polite"
+></div>
+
+
+<div class="add-word">
+
+<input
+id="quickAddWord"
+type="text"
+placeholder="أضف كلمة جديدة"
+>
+
+<button id="quickAddButton" type="button">
+إضافة
+</button>
+
+</div>
+
+</section>
+
+
+<section class="compact-section settings-section">
+
+<div class="section-title">
+
+<h2>
+إعدادات البحث
+</h2>
+
+<strong id="wordCount">
+0 كلمة
+</strong>
+
+</div>
+
+
+<div class="three-grid">
+
+<label>
+المنصة
+<select id="platform"></select>
+</label>
+
+
+<label>
+الوقت
+
+<select id="timeRange">
+
+<option value="all">
+كل الأوقات
+</option>
+
+<option value="1h">
+آخر ساعة
+</option>
+
+<option value="3h">
+آخر 3 ساعات
+</option>
+
+<option value="8h">
+آخر 8 ساعات
+</option>
+
+<option value="24h">
+آخر 24 ساعة
+</option>
+
+<option value="3d">
+آخر 3 أيام
+</option>
+
+<option value="7d">
+آخر 7 أيام
+</option>
+
+</select>
+
+</label>
+
+
+<label class="switch-label">
+
+تاريخ مخصص
+
+<input
+id="customDateToggle"
+type="checkbox"
+>
+
+</label>
+
+</div>
+
+
+<p
+id="platformHint"
+class="hint"
+></p>
+
+
+<div
+id="customDatePanel"
+class="date-panel"
+hidden
+>
+
+<div class="calendar-switch">
+
+<button
+type="button"
+class="calendar-option active"
+data-calendar="gregorian"
+>
+ميلادي
+</button>
+
+<button
+type="button"
+class="calendar-option"
+data-calendar="hijri"
+>
+هجري
+</button>
+
+</div>
+
+
+<div
+id="gregorianDates"
+class="field-row"
+>
+
+<label>
+من
+<input id="startDate" type="date">
+</label>
+
+<label>
+إلى
+<input id="endDate" type="date">
+</label>
+
+</div>
+
+
+<div
+id="hijriDates"
+hidden
+>
+
+<fieldset>
+
+<legend>
+البداية
+</legend>
+
+<div class="hijri-selects">
+
+<select id="hStartDay"></select>
+<select id="hStartMonth"></select>
+<select id="hStartYear"></select>
+
+</div>
+
+<small id="hStartConverted"></small>
+
+</fieldset>
+
+
+<fieldset>
+
+<legend>
+النهاية
+</legend>
+
+<div class="hijri-selects">
+
+<select id="hEndDay"></select>
+<select id="hEndMonth"></select>
+<select id="hEndYear"></select>
+
+</div>
+
+<small id="hEndConverted"></small>
+
+</fieldset>
+
+</div>
+
+
+<div class="date-shortcuts">
+
+<button
+id="todayShortcut"
+type="button"
+>
+اليوم
+</button>
+
+<button
+id="yesterdayShortcut"
+type="button"
+>
+أمس
+</button>
+
+</div>
+
+<p id="dateStatus"></p>
+
+</div>
+
+
+<details class="advanced-disclosure">
+
+<summary>
+خيارات متقدمة
+</summary>
+
+<div class="advanced-body">
+
+<label>
+
+كلمة رئيسية
+
+<input
+id="primary"
+type="text"
+placeholder="اختياري"
+>
+
+</label>
+
+
+<label class="check-row">
+
+<input
+id="exactMatch"
+type="checkbox"
+>
+
+مطابقة العبارات بالكامل
+
+</label>
+
+
+<label
+id="retweetOption"
+class="check-row"
+>
+
+<input
+id="includeRetweets"
+type="checkbox"
+checked
+>
+
+تضمين إعادة النشر
+
+</label>
+
+</div>
+
+</details>
+
+</section>
+
+
+<section class="query-drawer">
+
+<details>
+
+<summary>
+عرض الاستعلام النهائي
+</summary>
+
+<textarea
+id="query"
+rows="5"
+readonly
+></textarea>
+
+
+<div class="query-actions">
+
+<button
+id="copy"
+disabled
+>
+نسخ
+</button>
+
+<a
+id="openSearch"
+class="disabled"
+href="#"
+target="_blank"
+rel="noopener"
+>
+فتح
+</a>
+
+</div>
+
+<h2
+id="resultTitle"
+hidden
+></h2>
+
+</details>
+
+</section>
+
+
+<div
+id="summaryGrid"
+hidden
+></div>
+
+</section>
+
+
+<details class="utility">
+
+<summary>
+مرجع المجموعات
+</summary>
+
+<div class="utility-body">
+
+<input
+id="referenceSearch"
+type="search"
+placeholder="بحث داخل المرجع"
+>
+
+<h2 id="referenceTitle"></h2>
+
+<div id="referenceList"></div>
+
+</div>
+
+</details>
+
+
+<details class="utility">
+
+<summary>
+السجل المحلي
+</summary>
+
+<div class="utility-body">
+
+<button
+id="clearHistory"
+class="text-button"
+>
+مسح السجل
+</button>
+
+<div id="historyList"></div>
+
+</div>
+
+</details>
+
+
+<button id="build" hidden></button>
+
+<button id="clear" hidden></button>
+
 </main>
-<div class="search-dock"><div><small id="dockSummary">جاهز للبحث</small><strong id="dockCount">0 كلمة</strong></div><button id="searchNow">بحث الآن</button></div>
-<noscript>يجب تفعيل JavaScript.</noscript></body></html>
+
+
+<div class="search-dock">
+
+<div>
+
+<small id="dockSummary">
+جاهز للبحث
+</small>
+
+<strong id="dockCount">
+0 كلمة
+</strong>
+
+</div>
+
+<button id="searchNow">
+بحث الآن
+</button>
+
+</div>
+
+
+<noscript>
+يجب تفعيل JavaScript.
+</noscript>
+
+</body>
+
+</html>
